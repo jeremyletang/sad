@@ -23,12 +23,13 @@
 #ifndef __SAD__SCHEMA__20160209__
 #define __SAD__SCHEMA__20160209__
 
-#include <tuple>
-#include <string>
-#include <unordered_map>
-#include <functional>
-#include "tuple_utils.hpp"
-#include "type_traits.hpp"
+#include <tuple>                // std::tuple
+#include <string>               // std::string
+#include <unordered_map>        // std::unordered_map
+#include <functional>           // std::reference_wrapper
+#include <stdexcept>            // std::invalid_argument
+#include "tuple_utils.hpp"      // sad::tuple_utils::for_each
+#include "type_traits.hpp"      // sad::traits::ensure_trait_for_all_v
 
 namespace sad {
 
@@ -49,10 +50,13 @@ struct field {
 };
 
 template <typename T, typename U>
-void bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, U& val) {}
+bool bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, U& val) { return false; }
 
 template <typename T>
-void bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, T& val) { t = val; }
+bool bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, T& val) {
+    t = val;
+    return true;
+}
 
 
 template <typename... Types>
@@ -66,8 +70,10 @@ struct schema_mapper {
 
     std::tuple<field<Types>...> fields;
 
+    schema_mapper() = delete;
     schema_mapper(field<Types>... fields)
     : fields(fields...) {}
+    ~schema_mapper() = default;
 
     template <typename Fn>
     void for_each(Fn f) const {
@@ -82,13 +88,15 @@ struct schema_mapper {
     template <typename T>
     T& get(const std::string& name) {
         T t{};
+        auto ok = false;
         std::reference_wrapper<T> ref = std::ref(t);
-        auto f = [&ref, &name](auto& f) {
+        auto f = [&ok, &ref, &name](auto& f) {
             if (f.name == name) {
-                bind_value_ref_to_reference_wrapper(ref, f.value);
+                ok |= bind_value_ref_to_reference_wrapper(ref, f.value);
             }
         };
         this->for_each(f);
+        if (not ok) throw std::invalid_argument{"type or name not in schema"};
         return ref;
     }
 
@@ -96,6 +104,25 @@ struct schema_mapper {
     const T& get(const std::string& name) const {
         return const_cast<schema_mapper&>(*this).get<T>(name);
     }
+
+    template <typename T>
+    bool exist_with_type(const std::string& name) const {
+        auto e = false;
+        auto f = [&e, &name](auto& f) {
+            if (f.name == name && std::is_same<T, decltype(f.value)>::value == true)
+            { e = true; }
+        };
+        return e;
+    }
+
+    bool exist(const std::string& name) const {
+        auto e = false;
+        auto f = [&e, &name](auto& f) {
+            if (f.name == name) { e = true; }
+        };
+        return e;
+    }
+
 };
 
 }
