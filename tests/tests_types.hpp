@@ -1,6 +1,7 @@
 #include <list>
 #include <type_traits>
 #include <utility>
+#include <array>
 #include <sad/schema.hpp>
 #include <sad/ostream.hpp>
 #include <sad/utility.hpp>
@@ -26,10 +27,12 @@ class hello {
     std::tuple<int, std::string, float, std::pair<std::list<int>, bool>> t;
     sad::maybe_null<int> mi;
     sad::maybe_null<std::string> ms;
+    std::array<float, 4> a;
 public:
     hello() = default;
-    hello(std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l, std::string ms)
-    : s(s), i(i), in(in), f(f), b(b), l(l), ms(ms) {}
+    hello(std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l,
+          std::string ms, std::array<float, 4> a)
+    : s(s), i(i), in(in), f(f), b(b), l(l), ms(ms), a(a) {}
 
     friend decltype(auto) sad::schema<>(hello& h);
 };
@@ -54,7 +57,8 @@ inline decltype(auto) schema(hello& h) {
         sad::f("lp", h.lp),
         sad::f("t", h.t),
         sad::f("mi", h.mi),
-        sad::f("ms", h.ms)
+        sad::f("ms", h.ms),
+        sad::f("a", h.a)
     );
 }
 }

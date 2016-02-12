@@ -18,7 +18,8 @@ int main () {
         84.42,
         false,
         {{1, 2, 3}, {3,2,1}},
-        "hello world"
+        "hello world",
+        {42.2, 51.7, 0.987, 12.97}
     };
 
     fun(h);

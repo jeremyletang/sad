@@ -75,6 +75,13 @@ template <typename CharT,
           typename Traits = std::char_traits<CharT>,
           typename T>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const sad::maybe_null<T>& mt);
+// std::array<T, std::size_t N> support
+template <typename CharT,
+          typename Traits = std::char_traits<CharT>,
+          template <typename, std::size_t> class Array,
+          typename T,
+          std::size_t N>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const Array<T, N>& a);
 
 // definitions
 
@@ -160,6 +167,23 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
                               const sad::maybe_null<T>& mt) {
     if (mt.is_null()) { os << "null"; } 
     else { print_field_value(os, *mt); }
+}
+
+// std::array<T, std::size_t N> support
+template <typename CharT,
+          typename Traits,
+          template <typename, std::size_t> class Array,
+          typename T,
+          std::size_t N>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const Array<T, N>& a) {
+  auto first = true;
+    os << "[";
+    std::for_each(a.cbegin(), a.cend(), [&first, &os](const auto& e) {
+        if (not first) { os << ", "; }
+        else { first = false; }
+        print_field_value(os, e);
+    });
+    os << "]";
 }
 
 template<typename CharT,
