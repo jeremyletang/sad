@@ -27,6 +27,10 @@
 #include "maybe_null.hpp"
 
 namespace sad {
+
+template <typename... Tys>
+struct schema_mapper;
+
 namespace traits {
 namespace detail {
 
@@ -48,6 +52,8 @@ struct ensure_trait_for_all<Trait, T, void_t> :
 
 }
 
+// is bool
+
 template <typename T>
 struct is_bool : std::false_type {};
 
@@ -57,6 +63,8 @@ struct is_bool<bool> : std::true_type {};
 template <typename T>
 constexpr bool is_bool_v = is_bool<T>::value;
 
+// ensure for_all
+
 template <template <typename> class Trait, typename... T>
 struct ensure_trait_for_all :
     detail::bool_constant<detail::ensure_trait_for_all<Trait, T..., detail::void_t>::value>
@@ -64,6 +72,8 @@ struct ensure_trait_for_all :
 
 template <template <typename> class Trait, typename ... T>
 constexpr bool ensure_trait_for_all_v = ensure_trait_for_all<Trait, T...>::value;
+
+// maybe_null check
 
 template <typename T>
 struct is_maybe_null : std::false_type {};
@@ -75,6 +85,17 @@ struct is_maybe_null<maybe_null<T>> : std::true_type {
 
 template <typename T>
 constexpr bool is_maybe_null_v = is_maybe_null<T>::value;
+
+// schema_mapper check
+
+template <typename T>
+struct is_schema_mapper : std::false_type {};
+
+template <typename... Tys>
+struct is_schema_mapper<sad::schema_mapper<Tys...>> : std::true_type {};
+
+template <typename T>
+constexpr bool is_schema_mapper_v = is_schema_mapper<T>::value;
 
 }}
 
