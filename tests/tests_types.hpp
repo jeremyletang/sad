@@ -16,6 +16,7 @@ struct inner {
 };
 
 class hello {
+    char c;
     std::string s;
     int i;
     inner in;
@@ -30,9 +31,9 @@ class hello {
     std::array<float, 4> a;
 public:
     hello() = default;
-    hello(std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l,
+    hello(char c, std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l,
           std::string ms, std::array<float, 4> a)
-    : s(s), i(i), in(in), f(f), b(b), l(l), ms(ms), a(a) {}
+    : c(c), s(s), i(i), in(in), f(f), b(b), l(l), ms(ms), a(a) {}
 
     friend decltype(auto) sad::schema<>(hello& h);
 };
@@ -48,6 +49,7 @@ inline decltype(auto) schema(inner& in) {
 template <>
 inline decltype(auto) schema(hello& h) {
     return sad::make_schema(
+        sad::f("c", h.c),
         sad::f("s", h.s),
         sad::f("i", h.i),
         sad::f("in", h.in),

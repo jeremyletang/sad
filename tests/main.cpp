@@ -12,6 +12,7 @@ void fun(const hello& h) {
 
 int main () {
     const auto h = hello{
+        '?',
         "hello world",
         42,
         {21, 12.12},

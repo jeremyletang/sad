@@ -40,6 +40,9 @@ namespace sad {
 template <typename CharT, typename Traits, typename Allocator>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
                               const std::basic_string<CharT, Traits, Allocator>& s);
+// char
+template <typename CharT, typename Traits>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const char& c);
 // numbers
 template <typename CharT,
           typename Traits = std::char_traits<CharT>,
@@ -90,6 +93,12 @@ template <typename CharT, typename Traits, typename Allocator>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
                               const std::basic_string<CharT, Traits, Allocator>& s) {
     os << "\"" << s << "\"";
+}
+
+// char
+template <typename CharT, typename Traits>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const char& c) {
+  os << "'" << c << "'";
 }
 
 // numbers
