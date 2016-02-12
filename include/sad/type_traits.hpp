@@ -24,6 +24,7 @@
 #define __SAD__TYPE_TRAITS__20160209__
 
 #include <type_traits>
+#include "maybe_null.hpp"
 
 namespace sad {
 namespace traits {
@@ -63,6 +64,17 @@ struct ensure_trait_for_all :
 
 template <template <typename> class Trait, typename ... T>
 constexpr bool ensure_trait_for_all_v = ensure_trait_for_all<Trait, T...>::value;
+
+template <typename T>
+struct is_maybe_null : std::false_type {};
+
+template <typename T>
+struct is_maybe_null<maybe_null<T>> : std::true_type {
+    using inner_type = T;
+};
+
+template <typename T>
+constexpr bool is_maybe_null_v = is_maybe_null<T>::value;
 
 }}
 

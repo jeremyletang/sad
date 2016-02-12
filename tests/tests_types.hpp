@@ -4,6 +4,7 @@
 #include <sad/schema.hpp>
 #include <sad/ostream.hpp>
 #include <sad/utility.hpp>
+#include <sad/maybe_null.hpp>
 
 struct inner {
     int blah;
@@ -23,10 +24,12 @@ class hello {
     std::pair<int, std::string> p;
     std::list<std::pair<int, std::string>> lp;
     std::tuple<int, std::string, float, std::pair<std::list<int>, bool>> t;
+    sad::maybe_null<int> mi;
+    sad::maybe_null<std::string> ms;
 public:
     hello() = default;
-    hello(std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l)
-    : s(s), i(i), in(in), f(f), b(b), l(l) {}
+    hello(std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l, std::string ms)
+    : s(s), i(i), in(in), f(f), b(b), l(l), ms(ms) {}
 
     friend decltype(auto) sad::schema<>(hello& h);
 };
@@ -49,7 +52,9 @@ inline decltype(auto) schema(hello& h) {
         sad::f("b", h.b),
         sad::f("l", h.l),
         sad::f("lp", h.lp),
-        sad::f("t", h.t)
+        sad::f("t", h.t),
+        sad::f("mi", h.mi),
+        sad::f("ms", h.ms)
     );
 }
 }

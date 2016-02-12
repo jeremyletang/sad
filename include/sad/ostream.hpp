@@ -30,6 +30,7 @@
 #include "utility.hpp"
 #include "tuple_utils.hpp"
 #include "type_traits.hpp"
+#include "maybe_null.hpp"
 
 namespace sad {
 
@@ -49,7 +50,8 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t)
 template <typename CharT,
           typename Traits = std::char_traits<CharT>,
           typename T,
-          typename std::enable_if<!std::is_arithmetic<T>::value>::type* = nullptr>
+          typename std::enable_if<!std::is_arithmetic<T>::value &&
+                                  !sad::traits::is_maybe_null_v<T>>::type* = nullptr>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t);
 // containers (std::list, std::vector, std::deque, std::forward_list ...)
 template <typename CharT,
@@ -63,10 +65,16 @@ template <typename CharT,
           typename T1,
           typename T2>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const std::pair<T1, T2>& p);
+// std::tuple
 template <typename CharT,
           typename Traits = std::char_traits<CharT>,
           typename... Tys>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const std::tuple<Tys...>& t);
+// sad::maybe_null
+template <typename CharT,
+          typename Traits = std::char_traits<CharT>,
+          typename T>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const sad::maybe_null<T>& mt);
 
 // definitions
 
@@ -91,7 +99,8 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t)
 template <typename CharT,
           typename Traits,
           typename T,
-          typename std::enable_if<!std::is_arithmetic<T>::value>::type*>
+          typename std::enable_if<!std::is_arithmetic<T>::value &&
+                                  !sad::traits::is_maybe_null_v<T>>::type*>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t) {
     os << sad::schema(t);
 }
@@ -117,7 +126,8 @@ template <typename CharT,
           typename Traits,
           typename T1,
           typename T2>
-inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const std::pair<T1, T2>& p) {
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::pair<T1, T2>& p) {
     os << "{'first': ";
     print_field_value(os, p.first);
     os << ", 'second': ";
@@ -129,7 +139,8 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const std::
 template <typename CharT,
           typename Traits,
           typename... Tys>
-inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const std::tuple<Tys...>& t) {
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::tuple<Tys...>& t) {
     auto first = true;
     os << "(";
     auto f = [&first, &os](const auto& e) {
@@ -139,6 +150,16 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const std::
     };
     sad::tuple_utils::for_each(t, f);
     os << ")";
+}
+
+// sad::maybe_null
+template <typename CharT,
+          typename Traits,
+          typename T>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const sad::maybe_null<T>& mt) {
+    if (mt.is_null()) { os << "null"; } 
+    else { print_field_value(os, *mt); }
 }
 
 template<typename CharT,
@@ -155,6 +176,13 @@ std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>&
         print_field_value(os, f.value);
     });
     os << "}";
+    return os;
+}
+
+template<typename CharT, typename Traits, typename U>
+std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,
+                                              const sad::maybe_null<U>& t) {
+    print_field_value(os, t);
     return os;
 }
 
