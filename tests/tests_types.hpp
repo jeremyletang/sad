@@ -29,6 +29,9 @@ class hello {
     sad::maybe_null<int> mi;
     sad::maybe_null<std::string> ms;
     std::array<float, 4> a;
+    std::stack<double> sd;
+    std::queue<double> q;
+    std::priority_queue<double> pq;
 public:
     hello() = default;
     hello(char c, std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l,
@@ -60,7 +63,10 @@ inline decltype(auto) schema(hello& h) {
         sad::f("t", h.t),
         sad::f("mi", h.mi),
         sad::f("ms", h.ms),
-        sad::f("a", h.a)
+        sad::f("a", h.a),
+        sad::f("sd", h.sd),
+        sad::f("q", h.q),
+        sad::f("pq", h.pq)
     );
 }
 }

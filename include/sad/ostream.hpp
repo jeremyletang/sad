@@ -26,14 +26,18 @@
 #include <iostream>
 #include <algorithm>
 #include <type_traits>
+#include <stack>
+#include <queue>
+
 #include "schema.hpp"
 #include "utility.hpp"
 #include "tuple_utils.hpp"
 #include "type_traits.hpp"
 #include "maybe_null.hpp"
+#include "container_adapter_helper.hpp"
 
 namespace sad {
-
+namespace detail {
 // declarations
 
 // std::basic_string
@@ -85,6 +89,19 @@ template <typename CharT,
           typename T,
           std::size_t N>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const Array<T, N>& a);
+// std::stack
+template <typename CharT, typename Traits, typename T, typename Container>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::stack<T, Container>& s);
+// std::queue
+template <typename CharT, typename Traits, typename T, typename Container>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::queue<T, Container>& q);
+
+// std::priority_queue
+template <typename CharT, typename Traits, typename T, typename Container>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::priority_queue<T, Container>& pq);
 
 // definitions
 
@@ -195,6 +212,34 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const Array
     os << "]";
 }
 
+// stack / queue / priority_queue
+
+// std::stack
+template <typename CharT, typename Traits, typename T, typename Container>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::stack<T, Container>& s) {
+    auto& c = sad::helper::get_internal_container(s);
+    print_field_value(os, c);
+}
+
+// std::queue
+template <typename CharT, typename Traits, typename T, typename Container>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::queue<T, Container>& q) {
+    auto& c = sad::helper::get_internal_container(q);
+    print_field_value(os, c);
+}
+
+// std::priority_queue
+template <typename CharT, typename Traits, typename T, typename Container>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const std::priority_queue<T, Container>& pq) {
+    auto& c = sad::helper::get_internal_container(pq);
+    print_field_value(os, c);
+}
+
+}
+
 template<typename CharT,
          typename Traits,
          typename... Types>
@@ -206,7 +251,7 @@ std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>&
         if (not first) { os << ", "; }
         else { first = false; }
         os << "'" << f.name << "': ";
-        print_field_value(os, f.value);
+        detail::print_field_value(os, f.value);
     });
     os << "}";
     return os;
@@ -215,7 +260,7 @@ std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>&
 template<typename CharT, typename Traits, typename U>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,
                                               const sad::maybe_null<U>& t) {
-    print_field_value(os, t);
+    detail::print_field_value(os, t);
     return os;
 }
 
