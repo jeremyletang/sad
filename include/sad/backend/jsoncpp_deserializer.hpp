@@ -20,28 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef __SAD__CONTAINER_ADAPTER_HELPER__20160212__
-#define __SAD__CONTAINER_ADAPTER_HELPER__20160212__
+#ifndef __SAD__BACKEND_JSONCPP_DESERIALIZER__20160213__
+#define __SAD__BACKEND_JSONCPP_DESERIALIZER__20160213__
 
 namespace sad {
-namespace helper {
-
-// container based on container without iterators helpers
-// retrieve the container inside an std::queue / std::stack / std::priority_queue
-template <typename T>
-struct container_adapter_wrapper : public T {
-    using container_type = typename T::container_type;
-    const typename T::container_type& get_container() const {
-        return this->c;
-    }
-};
-
-template <typename T>
-const typename T::container_type& get_internal_container(const T& q) {
-    const auto* qw = reinterpret_cast<const container_adapter_wrapper<T>*>(&q);
-    return qw->get_container();
+namespace backend {
+namespace detail {
+    
 }
+
 
 }}
 
-#endif // __SAD__CONTAINER_ADAPTER_HELPER__20160209__
+#endif

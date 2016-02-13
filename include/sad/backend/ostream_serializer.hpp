@@ -20,28 +20,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef __SAD__CONTAINER_ADAPTER_HELPER__20160212__
-#define __SAD__CONTAINER_ADAPTER_HELPER__20160212__
+#ifndef __SAD__BACKEND_OSTREAM_SERIALIZER__20160213__
+#define __SAD__BACKEND_OSTREAM_SERIALIZER__20160213__
+
+#include <iostream>
+#include "../ostream.hpp"
 
 namespace sad {
-namespace helper {
+namespace backend {
 
-// container based on container without iterators helpers
-// retrieve the container inside an std::queue / std::stack / std::priority_queue
-template <typename T>
-struct container_adapter_wrapper : public T {
-    using container_type = typename T::container_type;
-    const typename T::container_type& get_container() const {
-        return this->c;
+template <typename CharT, typename Traits = std::char_traits<CharT>>
+struct basic_ostream_serializer {
+    std::basic_ostream<CharT, Traits>& out;
+
+    using serialized_type = std::basic_ostream<CharT, Traits>&;
+
+    basic_ostream_serializer() = delete;
+    basic_ostream_serializer(std::basic_ostream<CharT, Traits>& os)
+    : out(os) {}
+    ~basic_ostream_serializer() = default;
+
+    template <typename T>
+    std::basic_ostream<CharT, Traits>& serialize(const T& value) {
+        this->out << sad::schema(value);
+        return this->out;
     }
+
 };
 
-template <typename T>
-const typename T::container_type& get_internal_container(const T& q) {
-    const auto* qw = reinterpret_cast<const container_adapter_wrapper<T>*>(&q);
-    return qw->get_container();
-}
+using ostream_serializer = basic_ostream_serializer<char>;
+using wostream_serializer = basic_ostream_serializer<wchar_t>;
 
 }}
 
-#endif // __SAD__CONTAINER_ADAPTER_HELPER__20160209__
+#endif

@@ -1,7 +1,10 @@
+#include <sstream>
+#include "tests_types.hpp"
 #include <sad/schema.hpp>
 #include <sad/ostream.hpp>
-#include "tests_types.hpp"
 #include <sad/maybe_null.hpp>
+#include <sad/serialize.hpp>
+#include <sad/backend/ostream_serializer.hpp>
 
 template <typename T>
 struct ty;
@@ -26,13 +29,15 @@ int main () {
         {'a', 'b', 'c', 'd'},
     };
 
-    fun(h);
+    // fun(h);
     auto s = sad::schema(h);
     s.get<int>("i") = 250;
-    std::cout << "hello.i:" << s.get<int>("i") << std::endl;
+    // std::cout << "hello.i:" << s.get<int>("i") << std::endl;
     auto mn = std::move(sad::maybe_null<int>{});
     sad::maybe_null<int> mi = 42;
-    std::cout << mi << std::endl;
+    // std::cout << mi << std::endl;
 
+    sad::serialize(sad::backend::ostream_serializer{std::cerr}, h);
+    
     // ty<decltype(s)> t;
 }

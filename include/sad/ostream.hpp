@@ -58,7 +58,8 @@ template <typename CharT,
           typename Traits,
           typename T,
           typename std::enable_if<!std::is_arithmetic<T>::value &&
-                                  !sad::traits::is_maybe_null_v<T>>::type* = nullptr>
+                                  !sad::traits::is_maybe_null_v<T> &&
+                                  !sad::traits::has_iterator_v<T>>::type* = nullptr>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t);
 // containers (std::list, std::vector, std::deque, std::forward_list ...)
 template <typename CharT,
@@ -157,7 +158,8 @@ template <typename CharT,
           typename Traits,
           typename T,
           typename std::enable_if<!std::is_arithmetic<T>::value &&
-                                  !sad::traits::is_maybe_null_v<T>>::type*>
+                                  !sad::traits::is_maybe_null_v<T> &&
+                                  !sad::traits::has_iterator_v<T>>::type*>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t) {
     os << sad::schema(t);
 }

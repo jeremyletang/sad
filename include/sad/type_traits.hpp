@@ -100,6 +100,20 @@ struct is_schema_mapper<sad::schema_mapper<Tys...>> : std::true_type {};
 template <typename T>
 constexpr bool is_schema_mapper_v = is_schema_mapper<T>::value;
 
+// has_iterator
+
+template <typename T>
+struct has_iterator {
+    template <typename U>
+    static char test(typename U::iterator* x);
+    template <typename U>
+    static long test(U* x);
+    static const bool value = sizeof(test<T>(0)) == 1;
+};
+
+template <typename T>
+constexpr bool has_iterator_v = has_iterator<T>::value;
+
 }}
 
 #endif // __SAD__TYPE_TRAITS__20160209__
