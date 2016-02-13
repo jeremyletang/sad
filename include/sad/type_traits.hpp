@@ -86,6 +86,9 @@ struct is_maybe_null<maybe_null<T>> : std::true_type {
 template <typename T>
 constexpr bool is_maybe_null_v = is_maybe_null<T>::value;
 
+template <typename T>
+using is_maybe_null_t = typename is_maybe_null<T>::inner_type;
+
 // schema_mapper check
 
 template <typename T>

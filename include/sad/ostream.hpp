@@ -63,9 +63,10 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t)
 // containers (std::list, std::vector, std::deque, std::forward_list ...)
 template <typename CharT,
           typename Traits,
+          template<typename, typename> class C,
           typename T,
-          template<typename Ty, typename Allocator = std::allocator<Ty>> class C>
-inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const C<T>& t);
+          typename Allocator = std::allocator<T>>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const C<T, Allocator>& t);
 // std::pair
 template <typename CharT, typename Traits, typename T1, typename T2>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const std::pair<T1, T2>& p);
@@ -90,11 +91,41 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
 template <typename CharT, typename Traits, typename T, typename Container>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
                               const std::queue<T, Container>& q);
-
 // std::priority_queue
 template <typename CharT, typename Traits, typename T, typename Container>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
                               const std::priority_queue<T, Container>& pq);
+// std::unordered_map / std::unorederd_multimap
+template <typename CharT,
+          typename Traits,
+          template <typename, typename, typename, typename, typename> class UMap,
+          typename Key,
+          typename T,
+          typename Hash = std::hash<Key>,
+          typename KeyEqual = std::equal_to<Key>,
+          typename Allocator = std::allocator<std::pair<const Key, T>>>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const UMap<Key, T, Hash, KeyEqual, Allocator>& m);
+// std::map / std::multimap
+template <typename CharT,
+          typename Traits,
+          template <typename, typename, typename, typename> class Map,
+          typename Key,
+          typename T,
+          typename Compare = std::less<Key>,
+          typename Allocator = std::allocator<std::pair<const Key, T>>>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const Map<Key, T, KeyEqual, Allocator>& m);
+// std::set / std::multset
+template <typename CharT,
+          typename Traits,
+          template <typename, typename, typename> class Set,
+          typename Key,
+          typename Compare = std::less<Key>,
+          typename Allocator = std::allocator<Key>>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const Set<Key, Compare, Allocator>& s);
+
 
 // definitions
 
@@ -134,9 +165,10 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t)
 // containers
 template <typename CharT,
           typename Traits,
+          template<typename, typename> class C,
           typename T,
-          template<typename Ty, typename Allocator = std::allocator<Ty>> class C>
-inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const C<T>& t) {
+          typename Allocator>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const C<T, Allocator>& t) {
     auto first = true;
     os << "[";
     std::for_each(t.cbegin(), t.cend(), [&first, &os](const auto& e) {
@@ -222,6 +254,75 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
                               const std::priority_queue<T, Container>& pq) {
     auto& c = sad::helper::get_internal_container(pq);
     print_field_value(os, c);
+}
+
+// std::unordered_map / std::unorederd_multimap
+template <typename CharT,
+          typename Traits,
+          template <typename, typename, typename, typename, typename> class UMap,
+          typename Key,
+          typename T,
+          typename Hash,
+          typename KeyEqual,
+          typename Allocator>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const UMap<Key, T, Hash, KeyEqual, Allocator>& m) {
+    auto first = true;
+    os << "{";
+    std::for_each(m.cbegin(), m.cend(), [&first, &os](const auto& e) {
+        if (not first) { os << ", "; }
+        else { first = false; }
+        os << "(";
+        print_field_value(os, e.first);
+        os << ", ";
+        print_field_value(os, e.second);
+        os << ")";
+    });
+    os << "}";
+}
+
+
+// std::unordered_map / std::unorederd_multimap
+template <typename CharT,
+          typename Traits,
+          template <typename, typename, typename, typename> class Map,
+          typename Key,
+          typename T,
+          typename KeyEqual,
+          typename Allocator>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const Map<Key, T, KeyEqual, Allocator>& m) {
+    auto first = true;
+    os << "{";
+    std::for_each(m.cbegin(), m.cend(), [&first, &os](const auto& e) {
+        if (not first) { os << ", "; }
+        else { first = false; }
+        os << "(";
+        print_field_value(os, e.first);
+        os << ", ";
+        print_field_value(os, e.second);
+        os << ")";
+    });
+    os << "}";
+}
+
+// std::set / std::multset
+template <typename CharT,
+          typename Traits,
+          template <typename, typename, typename> class Set,
+          typename Key,
+          typename Compare,
+          typename Allocator>
+inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
+                              const Set<Key, Compare, Allocator>& s) {
+    auto first = true;
+    os << "{";
+    std::for_each(s.cbegin(), s.cend(), [&first, &os](const auto& e) {
+        if (not first) { os << ", "; }
+        else { first = false; }
+        print_field_value(os, e);
+    });
+    os << "}";
 }
 
 }

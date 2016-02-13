@@ -2,6 +2,8 @@
 #include <type_traits>
 #include <utility>
 #include <array>
+#include <map>
+#include <set>
 #include <sad/schema.hpp>
 #include <sad/ostream.hpp>
 #include <sad/utility.hpp>
@@ -32,11 +34,15 @@ class hello {
     std::stack<double> sd;
     std::queue<double> q;
     std::priority_queue<double> pq;
+    std::unordered_map<std::string, int> um;
+    std::map<std::string, int> m;
+    std::set<char> set_c;
 public:
     hello() = default;
     hello(char c, std::string s, int i, inner in, float f, bool b, std::list<std::list<int>> l,
-          std::string ms, std::array<float, 4> a)
-    : c(c), s(s), i(i), in(in), f(f), b(b), l(l), ms(ms), a(a) {}
+          std::string ms, std::array<float, 4> a, std::unordered_map<std::string, int> um,
+          std::map<std::string, int> m, std::set<char> set_c)
+    : c(c), s(s), i(i), in(in), f(f), b(b), l(l), ms(ms), a(a), um(um), m(m), set_c(set_c) {}
 
     friend decltype(auto) sad::schema<>(hello& h);
 };
@@ -66,7 +72,10 @@ inline decltype(auto) schema(hello& h) {
         sad::f("a", h.a),
         sad::f("sd", h.sd),
         sad::f("q", h.q),
-        sad::f("pq", h.pq)
+        sad::f("pq", h.pq),
+        sad::f("um", h.um),
+        sad::f("m", h.m),
+        sad::f("set_c", h.set_c)
     );
 }
 }
