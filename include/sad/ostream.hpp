@@ -115,7 +115,7 @@ template <typename CharT,
           typename Compare = std::less<Key>,
           typename Allocator = std::allocator<std::pair<const Key, T>>>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
-                              const Map<Key, T, KeyEqual, Allocator>& m);
+                              const Map<Key, T, Compare, Allocator>& m);
 // std::set / std::multset
 template <typename CharT,
           typename Traits,
