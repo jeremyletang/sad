@@ -37,7 +37,8 @@ int main () {
     sad::maybe_null<int> mi = 42;
     // std::cout << mi << std::endl;
 
-    sad::serialize(sad::backend::ostream_serializer{std::cerr}, h);
+    sad::serialize(sad::backend::cout_serializer.pretty(), h);
+    // sad::serialize(sad::backend::ostream_serializer{std::cout}, h);
     
     // ty<decltype(s)> t;
 }

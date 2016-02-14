@@ -23,11 +23,13 @@
 #ifndef __SAD__SERIALIZE__20160213__
 #define __SAD__SERIALIZE__20160213__
 
+#include <type_traits>
+
 namespace sad {
 
-template <typename Serializer,
-          typename Value>
-typename Serializer::serialized_type serialize(Serializer&& s, const Value& v) {
+template <typename Serializer, typename Value>
+typename std::remove_reference<Serializer>::type::serialized_type
+serialize(Serializer&& s, const Value& v) {
     return s.serialize(v);
 }
 
