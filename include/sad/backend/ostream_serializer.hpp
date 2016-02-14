@@ -24,6 +24,17 @@
 #define __SAD__BACKEND_OSTREAM_SERIALIZER__20160213__
 
 #include <iostream>
+#include <algorithm>
+#include <type_traits>
+#include <stack>
+#include <queue>
+
+#include "../schema.hpp"
+#include "../utility.hpp"
+#include "../tuple_utils.hpp"
+#include "../type_traits.hpp"
+#include "../maybe_null.hpp"
+#include "../container_adapter_helper.hpp"
 
 namespace sad {
 namespace backend {
@@ -363,9 +374,11 @@ public:
 
 };
 
+// basic serializers
 using ostream_serializer = basic_ostream_serializer<char>;
 using wostream_serializer = basic_ostream_serializer<wchar_t>;
 
+// same as std::cout
 static ostream_serializer cout_serializer{std::cout};
 
 }}

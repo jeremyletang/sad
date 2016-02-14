@@ -24,17 +24,6 @@
 #define __SAD__OSTREAM__20160209__
 
 #include <iostream>
-#include <algorithm>
-#include <type_traits>
-#include <stack>
-#include <queue>
-
-#include "schema.hpp"
-#include "utility.hpp"
-#include "tuple_utils.hpp"
-#include "type_traits.hpp"
-#include "maybe_null.hpp"
-#include "container_adapter_helper.hpp"
 #include "backend/ostream_serializer.hpp"
 
 namespace sad {

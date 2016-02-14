@@ -5,6 +5,8 @@
 #include <sad/maybe_null.hpp>
 #include <sad/serialize.hpp>
 #include <sad/backend/ostream_serializer.hpp>
+#include <gtest/gtest.h>
+#include <json/json.h>
 
 template <typename T>
 struct ty;

@@ -23,25 +23,21 @@
 # min config
 cmake_minimum_required (VERSION 2.8.1)
 
-project (sad)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14") #enable C++14
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
-option(WITH_JSONCPP_BACKEND "enable the jsoncpp backend for sad" OFF)
-option(BUILD_TESTS "build unit tests for sad" OFF)
+include_directories (
+    ${PROJECT_SOURCE_DIR}/include
+    ${GTEST_INCLUDE_DIR}
+)
 
-
-set_property (GLOBAL PROPERTY USE_FOLDERS ON)
-set (CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
-set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM ON)
-
-# if tests are enables, download gtests sources
-if (BUILD_TESTS)
-    include (gtest)
-    # if jsoncpp backend is enable download sources
-    if (WITH_JSONCPP_BACKEND)
-        include (jsoncpp)
-    endif ()
-    # build tests
-    add_subdirectory (tests)
+if (WITH_JSONCPP_BACKEND)
+    include_directories (${JSONCPP_INCLUDE_DIR})
 endif ()
 
+add_executable (sad_tests main.cpp)
+target_link_libraries (sad_tests ${GTEST_LIBRARY_DIR}/libgtest.a)
+
+if (WITH_JSONCPP_BACKEND)
+    target_link_libraries (sad_tests ${JSONCPP_LIBRARY_DIR}/libjsoncpp.a)
+endif ()

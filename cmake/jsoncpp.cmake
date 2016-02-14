@@ -20,28 +20,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# min config
-cmake_minimum_required (VERSION 2.8.1)
+cmake_minimum_required(VERSION 2.8.8)
+include(ExternalProject)
 
-project (sad)
+message(STATUS "Configuring jsoncpp")
 
-option(WITH_JSONCPP_BACKEND "enable the jsoncpp backend for sad" OFF)
-option(BUILD_TESTS "build unit tests for sad" OFF)
+set (JSONCPP_VERSION 1.6.5)
+set (JSONCPP_DIR jsoncpp)
+set (JSONCPP_PATH ${CMAKE_BINARY_DIR}/${JSONCPP_DIR})
 
+ExternalProject_Add(
+    jsoncpp
+    PREFIX ${JSONCPP_PATH}
+    URL https://github.com/open-source-parsers/jsoncpp/archive/${JSONCPP_VERSION}.zip
+    TIMEOUT 10
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} "-DCMAKE_INSTALL_PREFIX=${JSONCPP_PATH}" -DBUILD_TYPE=Release -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF <SOURCE_DIR>
+    BUILD_IN_SOURCE ON
+    UPDATE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    INSTALL_COMMAND ""
+    LOG_DOWNLOAD ON
+    LOG_UPDATE ON
+    LOG_CONFIGURE ON
+    LOG_BUILD ON
+)
 
-set_property (GLOBAL PROPERTY USE_FOLDERS ON)
-set (CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
-set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM ON)
-
-# if tests are enables, download gtests sources
-if (BUILD_TESTS)
-    include (gtest)
-    # if jsoncpp backend is enable download sources
-    if (WITH_JSONCPP_BACKEND)
-        include (jsoncpp)
-    endif ()
-    # build tests
-    add_subdirectory (tests)
-endif ()
-
+ExternalProject_Get_Property(jsoncpp SOURCE_DIR)
+set (JSONCPP_INCLUDE_DIR "${SOURCE_DIR}/include")
+set (JSONCPP_LIBRARY_DIR "${SOURCE_DIR}/src/lib_json")
