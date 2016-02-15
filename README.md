@@ -10,7 +10,7 @@ The library is designed to work with multiple backend, for now I'm working on a 
 
 ## A simple Example
 
-```
+```C++
 #include <string>
 #include <sad/schema.hpp>
 #include <sad/ostream.hpp>
@@ -64,7 +64,7 @@ You can build the test suite using cmake to generate a build system for you plat
 CMake will first download the required libraries to build the tests (googletest, and the backends dependencies).
 You can specifies to build the test using this kind of command line:
 ```Shell
-> mkdir build && cd build;
+> mkdir build && cd build
 > cmake -DBUILD_TESTS=ON -DWITH_JSONCPP_BACKEND=ON ..
 > make
 ```
