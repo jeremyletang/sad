@@ -15,10 +15,11 @@ The library is designed to work with multiple backend, for now I'm working on a 
 #include <sad/schema.hpp>
 #include <sad/ostream.hpp>
 #include <sad/utility.hpp>
-#include <sad/backend/basic_ostream_serializer.hpp>
+#include <sad/serialize.hpp>
+#include <sad/backend/ostream_serializer.hpp>
 
 // define your model
-stuct person {
+struct person {
     std::string name;
     unsigned int age;
     person() = default;
@@ -41,9 +42,8 @@ int main() {
     const auto p = person{"balek", 25};
     // serialize using the basic_ostream serializer
     // initialized with std::cout
-    sad::serialize(sad::backend::basic_ostream{std::cout}, h);
+    sad::serialize(sad::backend::ostream_serializer{std::cout}, p);
 }
-
 ```
 
 ## Installation
