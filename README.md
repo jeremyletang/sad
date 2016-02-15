@@ -48,6 +48,8 @@ int main() {
 
 ## Installation
 
+*SAD* use C++14 features, so you won't be able to build it with a compiler not recent enough (clang >= 3.4 && gcc >= 5.0).
+
 As specified earlier, *SAD* is an header only library, you just need to clone the repository, 
 and copy everthing from the include folder inside your project.
 
