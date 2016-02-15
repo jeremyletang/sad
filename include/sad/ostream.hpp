@@ -31,14 +31,14 @@ namespace sad {
 template<typename CharT, typename Traits, typename... Types>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,
                                               const sad::schema_mapper<Types...>& schema) {
-    sad::backend::detail::print_field_value(os, schema);
+    sad::backend::detail::basic_ostream::print_field_value(os, schema);
     return os;
 }
 
 template<typename CharT, typename Traits, typename U>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,
                                               const sad::maybe_null<U>& t) {
-    sad::backend::detail::print_field_value(os, t);
+    sad::backend::detail::basic_ostream::print_field_value(os, t);
     return os;
 }
 

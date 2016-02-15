@@ -5,6 +5,7 @@
 #include <sad/maybe_null.hpp>
 #include <sad/serialize.hpp>
 #include <sad/backend/ostream_serializer.hpp>
+#include <sad/backend/jsoncpp_serializer.hpp>
 #include <gtest/gtest.h>
 #include <json/json.h>
 
@@ -31,6 +32,8 @@ int main () {
         {'a', 'b', 'c', 'd'},
     };
 
+    const auto i = inner{21, 12.12};
+
     // fun(h);
     auto s = sad::schema(h);
     s.get<int>("i") = 250;
@@ -40,7 +43,10 @@ int main () {
     // std::cout << mi << std::endl;
 
     sad::serialize(sad::backend::cout_serializer.pretty(), h);
-    // sad::serialize(sad::backend::ostream_serializer{std::cout}, h);
+    std::cout << std::endl;
+    auto json_value = sad::serialize(sad::backend::jsoncpp_serializer{}, i);
+    
+    std::cout << json_value.toStyledString() << std::endl;
     
     // ty<decltype(s)> t;
 }

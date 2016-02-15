@@ -23,11 +23,137 @@
 #ifndef __SAD__BACKEND_JSONCPP_SERIALIZER__20160213__
 #define __SAD__BACKEND_JSONCPP_SERIALIZER__20160213__
 
+#include <type_traits>
+#include <json/json.h>
+
+#include "../schema.hpp"
+#include "../utility.hpp"
+
 namespace sad {
 namespace backend {
 namespace detail {
-    
+namespace jsoncpp {
+
+// strings
+template <typename CharT, typename Traits, typename Allocator>
+inline void serialize_field_value(Json::Value& root,
+                            const std::basic_string<CharT, Traits, Allocator>& s,
+                            const std::string& name);
+// unsigned numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_unsigned<T>::value>::type* = nullptr>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name);
+// signed numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_signed<T>::value>::type* = nullptr>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name);
+// reals 
+template <typename T,
+          typename std::enable_if<std::is_floating_point<T>::value>::type* = nullptr>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name);
+// schema
+template<typename... Types>
+inline void serialize_field_value(Json::Value& root,
+                            const sad::schema_mapper<Types...>& schema);
+// any object
+template <typename T,
+          typename std::enable_if<!std::is_arithmetic<T>::value &&
+                                  !sad::traits::is_maybe_null_v<T> &&
+                                  !sad::traits::has_iterator_v<T>>::type* = nullptr>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name);
+
+// strings
+template <typename CharT, typename Traits, typename Allocator>
+inline void serialize_field_value(Json::Value& root,
+                            const std::basic_string<CharT, Traits, Allocator>& s,
+                            const std::string& name) {
+    auto value = Json::Value(s);
+    root[name] = value;
 }
+
+// unsigned numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_unsigned<T>::value>::type*>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name) {
+    auto value = Json::Value(static_cast<Json::UInt>(t));
+    root[name] = value;
+}
+
+// signed numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_signed<T>::value>::type*>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name) {
+    auto value = Json::Value(static_cast<Json::Int>(t));
+    root[name] = value;
+}
+
+// reals 
+template <typename T,
+          typename std::enable_if<std::is_floating_point<T>::value>::type*>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name)  {
+    auto value = Json::Value(static_cast<double>(t));
+    root[name] = value;
+}
+
+// schema
+template<typename... Types>
+inline void serialize_field_value(Json::Value& root,
+                            const sad::schema_mapper<Types...>& schema) {
+    schema.for_each([&root](const auto& f) {
+        detail::jsoncpp::serialize_field_value(root, f.value, f.name);
+    });
+}
+
+// any object
+template <typename T,
+          typename std::enable_if<!std::is_arithmetic<T>::value &&
+                                  !sad::traits::is_maybe_null_v<T> &&
+                                  !sad::traits::has_iterator_v<T>>::type*>
+inline void serialize_field_value(Json::Value& root,
+                            const T& t,
+                            const std::string& name) {
+    auto value = Json::Value(Json::objectValue);
+    root[name] = value;
+    set_field_value(root[name], sad::schema(t));
+}
+
+}}
+
+struct jsoncpp_serializer {
+private:
+    Json::Value root;
+
+public:
+    using serialized_type = Json::Value;
+
+    jsoncpp_serializer() = default;
+    ~jsoncpp_serializer() = default;
+
+    template <typename T>
+    Json::Value serialize(const T& value) {
+        sad::backend::detail::jsoncpp::serialize_field_value(this->root, sad::schema(value));
+        return this->root;
+    }
+
+};
 
 
 }}

@@ -39,6 +39,8 @@
 namespace sad {
 namespace backend {
 namespace detail {
+namespace basic_ostream {
+
 // declarations
 
 // std::basic_string
@@ -340,12 +342,12 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
         if (not first) { os << ", "; }
         else { first = false; }
         os << "'" << f.name << "': ";
-        detail::print_field_value(os, f.value);
+        detail::basic_ostream::print_field_value(os, f.value);
     });
     os << "}";
 }
 
-}
+}}
 
 template <typename CharT, typename Traits = std::char_traits<CharT>>
 struct basic_ostream_serializer {
@@ -368,7 +370,7 @@ public:
 
     template <typename T>
     std::basic_ostream<CharT, Traits>& serialize(const T& value) {
-        detail::print_field_value(this->out, sad::schema(value));
+        detail::basic_ostream::print_field_value(this->out, sad::schema(value));
         return this->out;
     }
 
