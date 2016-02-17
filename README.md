@@ -33,7 +33,7 @@ namespace sad {
 template <typename T>
 struct schema<person<T>> : sad::base_scheam<person<T>> {
     using sad::base_schema<person<T>>::operator();
-    inline decltype(auto) schema(person<T>& p) {
+    decltype(auto) operator()(person<T>& p) {
         return sad::make_schema(
             sad::f("name", p.name),
             sad::f("age", p.age)

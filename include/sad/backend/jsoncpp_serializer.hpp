@@ -37,48 +37,56 @@ namespace jsoncpp {
 // strings
 template <typename CharT, typename Traits, typename Allocator>
 inline void serialize_field_value(Json::Value& root,
-                            const std::basic_string<CharT, Traits, Allocator>& s,
-                            const std::string& name);
+                                  const std::basic_string<CharT, Traits, Allocator>& s,
+                                  const std::string& name = "");
 // unsigned numbers
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value &&
                                   std::is_unsigned<T>::value>::type* = nullptr>
 inline void serialize_field_value(Json::Value& root,
-                            const T& t,
-                            const std::string& name);
+                                  const T& t,
+                                  const std::string& name = "");
 // signed numbers
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value &&
                                   std::is_signed<T>::value>::type* = nullptr>
 inline void serialize_field_value(Json::Value& root,
-                            const T& t,
-                            const std::string& name);
+                                  const T& t,
+                                  const std::string& name = "");
 // reals 
 template <typename T,
           typename std::enable_if<std::is_floating_point<T>::value>::type* = nullptr>
 inline void serialize_field_value(Json::Value& root,
-                            const T& t,
-                            const std::string& name);
+                                  const T& t,
+                                  const std::string& name = "");
 // schema
 template<typename... Types>
 inline void serialize_field_value(Json::Value& root,
-                            const sad::schema_mapper<Types...>& schema);
+                                  const sad::schema_mapper<Types...>& schema);
 // any object
 template <typename T,
           typename std::enable_if<!std::is_arithmetic<T>::value &&
                                   !sad::traits::is_maybe_null_v<T> &&
                                   !sad::traits::has_iterator_v<T>>::type* = nullptr>
 inline void serialize_field_value(Json::Value& root,
-                            const T& t,
-                            const std::string& name);
+                                  const T& t,
+                                  const std::string& name = "");
+// containers (std::list, std::vector, std::deque, std::forward_list ...)
+template <template<typename, typename> class C,
+          typename T,
+          typename Allocator = std::allocator<T>>
+inline void serialize_field_value(Json::Value& root,
+                                  const C<T, Allocator>& t,
+                                  const std::string& name = "");
 
 // strings
 template <typename CharT, typename Traits, typename Allocator>
 inline void serialize_field_value(Json::Value& root,
-                            const std::basic_string<CharT, Traits, Allocator>& s,
-                            const std::string& name) {
+                                  const std::basic_string<CharT, Traits, Allocator>& s,
+                                  const std::string& name) {
     auto value = Json::Value(s);
-    root[name] = value;
+    if (name.empty()) {root = value;} 
+    else {root[name] = value;}
 }
 
 // unsigned numbers
@@ -86,10 +94,11 @@ template <typename T,
           typename std::enable_if<std::is_integral<T>::value &&
                                   std::is_unsigned<T>::value>::type*>
 inline void serialize_field_value(Json::Value& root,
-                            const T& t,
-                            const std::string& name) {
+                                  const T& t,
+                                  const std::string& name) {
     auto value = Json::Value(static_cast<Json::UInt>(t));
-    root[name] = value;
+    if (name.empty()) {root = value;}
+    else {root[name] = value;}
 }
 
 // signed numbers
@@ -97,26 +106,28 @@ template <typename T,
           typename std::enable_if<std::is_integral<T>::value &&
                                   std::is_signed<T>::value>::type*>
 inline void serialize_field_value(Json::Value& root,
-                            const T& t,
-                            const std::string& name) {
+                                  const T& t,
+                                  const std::string& name) {
     auto value = Json::Value(static_cast<Json::Int>(t));
-    root[name] = value;
+    if (name.empty()) {root = value;}
+    else {root[name] = value;}
 }
 
 // reals 
 template <typename T,
           typename std::enable_if<std::is_floating_point<T>::value>::type*>
 inline void serialize_field_value(Json::Value& root,
-                            const T& t,
-                            const std::string& name)  {
+                                  const T& t,
+                                  const std::string& name)  {
     auto value = Json::Value(static_cast<double>(t));
-    root[name] = value;
+    if (name.empty()) {root = value;}
+    else {root[name] = value;}
 }
 
 // schema
 template<typename... Types>
 inline void serialize_field_value(Json::Value& root,
-                            const sad::schema_mapper<Types...>& schema) {
+                                  const sad::schema_mapper<Types...>& schema) {
     schema.for_each([&root](const auto& f) {
         detail::jsoncpp::serialize_field_value(root, f.value, f.name);
     });
@@ -131,8 +142,31 @@ inline void serialize_field_value(Json::Value& root,
                             const T& t,
                             const std::string& name) {
     auto value = Json::Value(Json::objectValue);
-    root[name] = value;
-    set_field_value(root[name], sad::schema<T>()(t));
+    if (name.empty()) {
+        root = value;
+        serialize_field_value(root, sad::schema<T>()(t));
+    } else {
+        root[name] = value;
+        serialize_field_value(root[name], sad::schema<T>()(t));
+    }
+}
+
+// containers (std::list, std::vector, std::deque, std::forward_list ...)
+template <template<typename, typename> class C, typename T, typename Allocator>
+inline void serialize_field_value(Json::Value& root,
+                                  const C<T, Allocator>& t,
+                                  const std::string& name) {
+    auto value = Json::Value(Json::arrayValue);
+    if (name.empty()) {root = value;}
+    else {root[name] = value;}
+    auto i = 0;
+    for (const auto& v : t) {
+        auto value_to_insert = Json::Value();
+        serialize_field_value(value_to_insert, v);
+        if (name.empty()) {root[i] = value_to_insert;}
+        else {root[name][i] = value_to_insert;}
+      i+=1;
+    }
 }
 
 }}

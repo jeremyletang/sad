@@ -13,9 +13,10 @@
 struct inner {
     int blah;
     float bleh;
+    std::vector<int> vec;
     inner() = default;
-    inner(int blah, float bleh)
-    : blah(blah), bleh(bleh) {}
+    inner(int blah, float bleh, std::vector<int> vec = {})
+    : blah(blah), bleh(bleh), vec(vec) {}
 };
 
 class hello {
@@ -57,7 +58,8 @@ struct schema<inner> : public sad::base_schema<inner>{
     decltype(auto) operator()(inner& in) {
         return sad::make_schema(
             sad::f("blah", in.blah),
-            sad::f("bleh", in.bleh)
+            sad::f("bleh", in.bleh),
+            sad::f("vec", in.vec)
     );
     }
 };
