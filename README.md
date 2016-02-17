@@ -19,27 +19,32 @@ The library is designed to work with multiple backend, for now I'm working on a 
 #include <sad/backend/ostream_serializer.hpp>
 
 // define your model
+template <typename T>
 struct person {
     std::string name;
-    unsigned int age;
+    T age;
     person() = default;
-    person(const std::string name, unsigned int age)
+    person(const std::string name, T age)
     : name(name), age(age) {}
 };
 
 // specialize the sad::schema function for you model
 namespace sad {
-template <>
-inline decltype(auto) schema(person& p) {
-    return sad::make_schema(
-        sad::f("name", p.name),
-        sad::f("age", p.age)
-    );
-}}
+template <typename T>
+struct schema<person<T>> : sad::base_scheam<person<T>> {
+    using sad::base_schema<person<T>>::operator();
+    inline decltype(auto) schema(person<T>& p) {
+        return sad::make_schema(
+            sad::f("name", p.name),
+            sad::f("age", p.age)
+        );
+    }
+};
+}
 
 int main() {
     // instanciate our model
-    const auto p = person{"balek", 25};
+    const auto p = person<unsigned int>{"balek", 25};
     // serialize using the basic_ostream serializer
     // initialized with std::cout
     sad::serialize(sad::backend::ostream_serializer{std::cout}, p);
