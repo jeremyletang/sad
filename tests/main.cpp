@@ -13,7 +13,7 @@ template <typename T>
 struct ty;
 
 void fun(const hello& h) {
-    std::cout << sad::schema(h) << std::endl;
+    std::cout << sad::schema<hello>()(h) << std::endl;
 }
 
 int main () {
@@ -35,7 +35,7 @@ int main () {
     const auto i = inner{21, 12.12};
 
     // fun(h);
-    auto s = sad::schema(h);
+    auto s = sad::schema<hello>()(h);
     s.get<int>("i") = 250;
     // std::cout << "hello.i:" << s.get<int>("i") << std::endl;
     auto mn = std::move(sad::maybe_null<int>{});

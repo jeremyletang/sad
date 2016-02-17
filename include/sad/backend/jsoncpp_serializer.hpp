@@ -132,7 +132,7 @@ inline void serialize_field_value(Json::Value& root,
                             const std::string& name) {
     auto value = Json::Value(Json::objectValue);
     root[name] = value;
-    set_field_value(root[name], sad::schema(t));
+    set_field_value(root[name], sad::schema<T>()(t));
 }
 
 }}
@@ -149,7 +149,7 @@ public:
 
     template <typename T>
     Json::Value serialize(const T& value) {
-        sad::backend::detail::jsoncpp::serialize_field_value(this->root, sad::schema(value));
+        sad::backend::detail::jsoncpp::serialize_field_value(this->root, sad::schema<T>()(value));
         return this->root;
     }
 

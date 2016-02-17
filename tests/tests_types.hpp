@@ -44,38 +44,46 @@ public:
           std::map<std::string, int> m, std::set<char> set_c)
     : c(c), s(s), i(i), in(in), f(f), b(b), l(l), ms(ms), a(a), um(um), m(m), set_c(set_c) {}
 
-    friend decltype(auto) sad::schema<>(hello& h);
+    friend struct sad::schema<hello>;
 };
+
+
 
 namespace sad {
 template <>
-inline decltype(auto) schema(inner& in) {
-    return sad::make_schema(
-        sad::f("blah", in.blah),
-        sad::f("bleh", in.bleh)
+struct schema<inner> : public sad::base_schema<inner>{
+    using sad::base_schema<inner>::operator();
+    decltype(auto) operator()(inner& in) {
+        return sad::make_schema(
+            sad::f("blah", in.blah),
+            sad::f("bleh", in.bleh)
     );
-}
+    }
+};
 template <>
-inline decltype(auto) schema(hello& h) {
-    return sad::make_schema(
-        sad::f("c", h.c),
-        sad::f("s", h.s),
-        sad::f("i", h.i),
-        sad::f("in", h.in),
-        sad::f("f", h.f),
-        sad::f("b", h.b),
-        sad::f("l", h.l),
-        sad::f("lp", h.lp),
-        sad::f("t", h.t),
-        sad::f("mi", h.mi),
-        sad::f("ms", h.ms),
-        sad::f("a", h.a),
-        sad::f("sd", h.sd),
-        sad::f("q", h.q),
-        sad::f("pq", h.pq),
-        sad::f("um", h.um),
-        sad::f("m", h.m),
-        sad::f("set_c", h.set_c)
-    );
-}
+struct schema<hello> : public sad::base_schema<hello>{
+    using sad::base_schema<hello>::operator();
+    decltype(auto) operator()(hello& h) {
+        return sad::make_schema(
+            sad::f("c", h.c),
+            sad::f("s", h.s),
+            sad::f("i", h.i),
+            sad::f("in", h.in),
+            sad::f("f", h.f),
+            sad::f("b", h.b),
+            sad::f("l", h.l),
+            sad::f("lp", h.lp),
+            sad::f("t", h.t),
+            sad::f("mi", h.mi),
+            sad::f("ms", h.ms),
+            sad::f("a", h.a),
+            sad::f("sd", h.sd),
+            sad::f("q", h.q),
+            sad::f("pq", h.pq),
+            sad::f("um", h.um),
+            sad::f("m", h.m),
+            sad::f("set_c", h.set_c)
+        );
+    }
+};
 }

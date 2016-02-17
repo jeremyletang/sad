@@ -42,13 +42,15 @@ decltype(auto) f(const std::string& name,
 }
 
 template <typename T>
-decltype(auto) schema(T&);
+struct schema;
 
 template <typename T>
-decltype(auto) schema(const T& t) {
-    const auto s = schema(const_cast<T&>(t));
-    return s;
-}
+struct base_schema {
+    decltype(auto) operator()(const T& p) const {
+        const auto s = schema<T>()(const_cast<T&>(p));
+        return s;
+    }
+};
 
 }
 

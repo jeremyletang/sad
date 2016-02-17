@@ -167,7 +167,7 @@ template <typename CharT,
                                   !sad::traits::is_maybe_null_v<T> &&
                                   !sad::traits::has_iterator_v<T>>::type*>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os, const T& t) {
-    print_field_value(os, sad::schema(t));
+    print_field_value(os, sad::schema<T>()(t));
 }
 
 // containers
@@ -370,7 +370,7 @@ public:
 
     template <typename T>
     std::basic_ostream<CharT, Traits>& serialize(const T& value) {
-        detail::basic_ostream::print_field_value(this->out, sad::schema(value));
+        detail::basic_ostream::print_field_value(this->out, sad::schema<T>()(value));
         return this->out;
     }
 
