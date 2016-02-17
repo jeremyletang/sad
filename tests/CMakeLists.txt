@@ -23,7 +23,7 @@
 # min config
 cmake_minimum_required (VERSION 2.8.1)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g") #enable C++14
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14") #enable C++14
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
 set (SOURCES main.cpp)
@@ -37,7 +37,7 @@ if (WITH_JSONCPP_BACKEND)
 endif ()
 if (WITH_SQLITE_BACKEND)
     # create the C file juste to make cmake happy
-    file(WRITE "${SQLITE_SRC}" "")
+    file(WRITE "${SQLITE_SRC}" "#error \"you should check you cmake configuration\"")
     include_directories (${SQLITE_INCLUDE_DIR})
     list (APPEND SOURCES ${SQLITE_SRC})
 endif ()
