@@ -26,6 +26,7 @@ cmake_minimum_required (VERSION 2.8.1)
 project (sad)
 
 option(WITH_JSONCPP_BACKEND "enable the jsoncpp backend for sad" OFF)
+option(WITH_SQLITE_BACKEND "enable the sqlite backend for sad" OFF)
 option(BUILD_TESTS "build unit tests for sad" OFF)
 
 
@@ -41,7 +42,10 @@ if (BUILD_TESTS)
     if (WITH_JSONCPP_BACKEND)
         include (jsoncpp)
     endif ()
+    # if sqlite backend is enable download sources
+    if (WITH_SQLITE_BACKEND)
+        include (sqlite)
+    endif ()
     # build tests
     add_subdirectory (tests)
 endif ()
-

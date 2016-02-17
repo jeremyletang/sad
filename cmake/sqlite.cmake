@@ -20,31 +20,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# min config
-cmake_minimum_required (VERSION 2.8.1)
+cmake_minimum_required(VERSION 2.8.8)
+include(ExternalProject)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g") #enable C++14
-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+message(STATUS "Configuring sqlite")
 
-set (SOURCES main.cpp)
+set (SQLITE_VERSION 3110000)
+set (SQLITE_DIR sqlite)
+set (SQLITE_PATH ${CMAKE_BINARY_DIR}/${SQLITE_DIR})
 
-include_directories (
-    ${PROJECT_SOURCE_DIR}/include
-    ${GTEST_INCLUDE_DIR}
+ExternalProject_Add(
+    sqlite
+    PREFIX ${SQLITE_PATH}
+    URL https://sqlite.org/2016/sqlite-amalgamation-${SQLITE_VERSION}.zip
+    TIMEOUT 10
+    CONFIGURE_COMMAND ""
+    BUILD_IN_SOURCE ON
+    UPDATE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    LOG_DOWNLOAD ON
+    LOG_UPDATE ON
+    LOG_CONFIGURE ON
+    LOG_BUILD ON
 )
-if (WITH_JSONCPP_BACKEND)
-    include_directories (${JSONCPP_INCLUDE_DIR})
-endif ()
-if (WITH_SQLITE_BACKEND)
-    # create the C file juste to make cmake happy
-    file(WRITE "${SQLITE_SRC}" "")
-    include_directories (${SQLITE_INCLUDE_DIR})
-    list (APPEND SOURCES ${SQLITE_SRC})
-endif ()
 
-add_executable (sad_tests ${SOURCES})
-target_link_libraries (sad_tests ${GTEST_LIBRARY_DIR}/libgtest.a)
+ExternalProject_Get_Property(sqlite SOURCE_DIR)
 
-if (WITH_JSONCPP_BACKEND)
-    target_link_libraries (sad_tests ${JSONCPP_LIBRARY_DIR}/libjsoncpp.a)
-endif ()
+set (SQLITE_INCLUDE_DIR "${SOURCE_DIR}")
+set (SQLITE_SRC "${SOURCE_DIR}/sqlite3.c")
