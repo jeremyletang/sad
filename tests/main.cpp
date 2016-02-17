@@ -33,6 +33,13 @@ int main () {
     };
 
     const auto i = inner{21, 12.12, {1, 2, 3, 4, 5}, {42, 84}};
+    
+    const auto _s = small{42};
+    const auto _s_equal = small{42};
+    const auto _s_not_equal = small{43};
+
+    std::cout << "s == s_equal " << std::boolalpha << sad::equals(_s, _s_equal) << std::endl; 
+    std::cout << "s != s_not_equal " << std::boolalpha << sad::equals(_s, _s_not_equal) << std::endl; 
 
     // fun(h);
     auto s = sad::schema<hello>()(h);

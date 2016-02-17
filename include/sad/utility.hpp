@@ -52,6 +52,31 @@ struct base_schema {
     }
 };
 
+template <typename... Tys>
+bool operator==(const schema_mapper<Tys...>& sm1, const schema_mapper<Tys...>& sm2) {
+    auto ok = true;
+    auto fn = [&sm2, &ok](const auto& f) {
+        const auto sm2_value = sm2.template get<std::remove_reference_t<decltype(f.value)>>(f.name);
+        if (sm2_value not_eq f.value) {
+            ok = false;
+        }
+    };
+    sm1.for_each(fn);
+    return ok;
+}
+
+template <typename... Tys>
+bool operator!=(const schema_mapper<Tys...>& sm1, const schema_mapper<Tys...>& sm2) {
+    return not (sm1 == sm2);
+}
+
+template <typename T>
+bool equals(const T& t1, const T& t2) {
+    auto s1 = sad::schema<T>()(t1);
+    auto s2 = sad::schema<T>()(t2);
+    return s1 == s2;
+}
+
 }
 
 #endif // __SAD__UTILITY__20160209__
