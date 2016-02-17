@@ -37,7 +37,9 @@ if (WITH_JSONCPP_BACKEND)
 endif ()
 if (WITH_SQLITE_BACKEND)
     # create the C file juste to make cmake happy
-    file(WRITE "${SQLITE_SRC}" "#error \"you should check you cmake configuration\"")
+    if (NOT EXISTS "${SQLITE_SRC}")
+        file(WRITE "${SQLITE_SRC}" "#error \"you should check you cmake configuration\"")
+    endif ()
     include_directories (${SQLITE_INCLUDE_DIR})
     list (APPEND SOURCES ${SQLITE_SRC})
 endif ()
@@ -45,6 +47,11 @@ endif ()
 add_executable (sad_tests ${SOURCES})
 target_link_libraries (sad_tests ${GTEST_LIBRARY_DIR}/libgtest.a)
 
+# link jsoncpp library
 if (WITH_JSONCPP_BACKEND)
     target_link_libraries (sad_tests ${JSONCPP_LIBRARY_DIR}/libjsoncpp.a)
+endif ()
+# link pthread + dl
+if (WITH_SQLITE_BACKEND)
+    target_link_libraries (sad_tests pthread dl)
 endif ()
