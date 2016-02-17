@@ -32,7 +32,7 @@ int main () {
         {'a', 'b', 'c', 'd'},
     };
 
-    const auto i = inner{21, 12.12, {1, 2, 3, 4, 5}};
+    const auto i = inner{21, 12.12, {1, 2, 3, 4, 5}, {42, 84}};
 
     // fun(h);
     auto s = sad::schema<hello>()(h);

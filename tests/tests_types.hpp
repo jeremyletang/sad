@@ -10,13 +10,23 @@
 #include <sad/utility.hpp>
 #include <sad/maybe_null.hpp>
 
+struct small {
+    int integer;
+    std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<int>>>>>>> vec;
+    small() {}
+    small(int integer)
+    : integer(integer)
+    , vec({{{{{{{1}}}}}}}) {}
+};
+
 struct inner {
     int blah;
     float bleh;
     std::vector<int> vec;
+    std::array<small, 2> small_object;
     inner() = default;
-    inner(int blah, float bleh, std::vector<int> vec = {})
-    : blah(blah), bleh(bleh), vec(vec) {}
+    inner(int blah, float bleh, std::vector<int> vec = {}, std::array<small, 2> small_object = {})
+    : blah(blah), bleh(bleh), vec(vec), small_object(small_object) {}
 };
 
 class hello {
@@ -53,13 +63,24 @@ public:
 
 namespace sad {
 template <>
+struct schema<small> : public sad::base_schema<small>{
+    using sad::base_schema<small>::operator();
+    decltype(auto) operator()(small& s) {
+        return sad::make_schema(
+            sad::f("integer", s.integer),
+            sad::f("vec", s.vec)
+    );
+    }
+};
+template <>
 struct schema<inner> : public sad::base_schema<inner>{
     using sad::base_schema<inner>::operator();
     decltype(auto) operator()(inner& in) {
         return sad::make_schema(
             sad::f("blah", in.blah),
             sad::f("bleh", in.bleh),
-            sad::f("vec", in.vec)
+            sad::f("vec", in.vec),
+            sad::f("small_object", in.small_object)
     );
     }
 };

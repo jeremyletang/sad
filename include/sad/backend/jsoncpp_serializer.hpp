@@ -78,6 +78,13 @@ template <template<typename, typename> class C,
 inline void serialize_field_value(Json::Value& root,
                                   const C<T, Allocator>& t,
                                   const std::string& name = "");
+// std::array<T, std::size_t N> support
+template <template <typename, std::size_t> class Array,
+          typename T,
+          std::size_t N>
+inline void serialize_field_value(Json::Value& root,
+                                  const Array<T, N>& a,
+                                  const std::string& name = "");
 
 // strings
 template <typename CharT, typename Traits, typename Allocator>
@@ -161,6 +168,24 @@ inline void serialize_field_value(Json::Value& root,
     else {root[name] = value;}
     auto i = 0;
     for (const auto& v : t) {
+        auto value_to_insert = Json::Value();
+        serialize_field_value(value_to_insert, v);
+        if (name.empty()) {root[i] = value_to_insert;}
+        else {root[name][i] = value_to_insert;}
+      i+=1;
+    }
+}
+
+// std::array<T, std::size_t N> support
+template <template <typename, std::size_t> class Array, typename T, std::size_t N>
+inline void serialize_field_value(Json::Value& root,
+                                  const Array<T, N>& a,
+                                  const std::string& name) {
+    auto value = Json::Value(Json::arrayValue);
+    if (name.empty()) {root = value;}
+    else {root[name] = value;}
+    auto i = 0;
+    for (const auto& v : a) {
         auto value_to_insert = Json::Value();
         serialize_field_value(value_to_insert, v);
         if (name.empty()) {root[i] = value_to_insert;}
