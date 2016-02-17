@@ -24,7 +24,7 @@
 #define __SAD__UTILITY__20160209__
 
 #include <string>
-#include <unordered_map>
+#include <vector>
 #include "schema.hpp"
 
 namespace sad {
@@ -37,7 +37,7 @@ decltype(auto) make_schema(sad::field<Types>... fields) {
 template <typename MemberRef>
 decltype(auto) f(const std::string& name,
                  MemberRef& member_ref,
-                 std::unordered_map<std::string, std::string> tags = {}) {
+                 std::vector<std::string> tags = {}) {
     return sad::field<MemberRef>{name, member_ref, tags};
 }
 

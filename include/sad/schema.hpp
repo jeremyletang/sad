@@ -25,7 +25,7 @@
 
 #include <tuple>                // std::tuple
 #include <string>               // std::string
-#include <unordered_map>        // std::unordered_map
+#include <vector>               // std::vector
 #include <functional>           // std::reference_wrapper
 #include <stdexcept>            // std::invalid_argument
 #include "tuple_utils.hpp"      // sad::tuple_utils::for_each
@@ -37,12 +37,12 @@ template <typename Value>
 struct field {
     std::string name;
     Value& value;
-    std::unordered_map<std::string, std::string> tags;
+    std::vector<std::string> tags;
 
     field() = delete;
     field(const std::string& name,
           Value& value,
-          std::unordered_map<std::string, std::string> tags = {})
+          std::vector<std::string> tags = {})
     : name(name)
     , value(value)
     , tags(tags) {}

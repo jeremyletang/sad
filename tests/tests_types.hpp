@@ -3,6 +3,7 @@
 #include <utility>
 #include <array>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <sad/schema.hpp>
 #include <sad/ostream.hpp>
