@@ -53,7 +53,7 @@ struct field {
 };
 
 template <typename T, typename U>
-bool bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, U& val) { return false; }
+bool bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>&, U&) { return false; }
 
 template <typename T>
 bool bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, T& val) {
