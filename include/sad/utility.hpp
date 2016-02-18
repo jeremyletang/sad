@@ -25,13 +25,16 @@
 
 #include <string>
 #include <vector>
+#include <typeinfo>
+
 #include "schema.hpp"
+#include "demangle.hpp"
 
 namespace sad {
 
-template <typename... Types>
+template <typename T, typename... Types>
 decltype(auto) make_schema(sad::field<Types>... fields) {
-    return sad::schema_mapper<Types...>(fields...);
+    return sad::schema_mapper<T, Types...>(fields...);
 }
 
 template <typename MemberRef>
@@ -46,6 +49,10 @@ struct schema;
 
 template <typename T>
 struct base_schema {
+    virtual std::string type_name() const {
+        return sad::demangle::type_name(typeid(T).name());
+    }
+
     decltype(auto) operator()(const T& p) const {
         const auto s = schema<T>()(const_cast<T&>(p));
         return s;
@@ -56,7 +63,8 @@ template <typename... Tys>
 bool operator==(const schema_mapper<Tys...>& sm1, const schema_mapper<Tys...>& sm2) {
     auto ok = true;
     auto fn = [&sm2, &ok](const auto& f) {
-        const auto sm2_value = sm2.template get<std::remove_reference_t<decltype(f.value)>>(f.name);
+        const auto sm2_value =
+            sm2.template get<std::remove_reference_t<decltype(f.value)>>(f.name);
         if (sm2_value not_eq f.value) {
             ok = false;
         }

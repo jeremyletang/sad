@@ -66,7 +66,7 @@ template <>
 struct schema<small> : public sad::base_schema<small>{
     using sad::base_schema<small>::operator();
     decltype(auto) operator()(small& s) {
-        return sad::make_schema(
+        return sad::make_schema<small>(
             sad::f("integer", s.integer),
             sad::f("vec", s.vec)
     );
@@ -76,7 +76,7 @@ template <>
 struct schema<inner> : public sad::base_schema<inner>{
     using sad::base_schema<inner>::operator();
     decltype(auto) operator()(inner& in) {
-        return sad::make_schema(
+        return sad::make_schema<inner>(
             sad::f("blah", in.blah),
             sad::f("bleh", in.bleh),
             sad::f("vec", in.vec),
@@ -88,7 +88,7 @@ template <>
 struct schema<hello> : public sad::base_schema<hello>{
     using sad::base_schema<hello>::operator();
     decltype(auto) operator()(hello& h) {
-        return sad::make_schema(
+        return sad::make_schema<hello>(
             sad::f("c", h.c),
             sad::f("s", h.s),
             sad::f("i", h.i),

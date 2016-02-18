@@ -28,8 +28,11 @@
 #include <vector>               // std::vector
 #include <functional>           // std::reference_wrapper
 #include <stdexcept>            // std::invalid_argument
+#include <typeinfo>
+
 #include "tuple_utils.hpp"      // sad::tuple_utils::for_each
 #include "type_traits.hpp"      // sad::traits::ensure_trait_for_all_v
+#include "demangle.hpp"         // sad::demangle::type_name
 
 namespace sad {
 
@@ -59,7 +62,7 @@ bool bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, T& val) {
 }
 
 
-template <typename... Types>
+template <typename T, typename... Types>
 struct schema_mapper {
     static_assert(
         sad::traits::ensure_trait_for_all_v<
@@ -68,6 +71,7 @@ struct schema_mapper {
         >,
         "schema_mapper Types... must be default constructible.");
 
+    using serialized_type = T;
     std::tuple<field<Types>...> fields;
 
     schema_mapper() = delete;
@@ -85,11 +89,11 @@ struct schema_mapper {
         sad::tuple_utils::for_each(this->fields, f);
     }
 
-    template <typename T>
-    T& get(const std::string& name) {
-        T t{};
+    template <typename U>
+    U& get(const std::string& name) {
+        U t{};
         auto ok = false;
-        std::reference_wrapper<T> ref = std::ref(t);
+        std::reference_wrapper<U> ref = std::ref(t);
         auto f = [&ok, &ref, &name](auto& f) {
             if (f.name == name) {
                 ok |= bind_value_ref_to_reference_wrapper(ref, f.value);
@@ -100,16 +104,16 @@ struct schema_mapper {
         return ref;
     }
 
-    template <typename T>
-    const T& get(const std::string& name) const {
-        return const_cast<schema_mapper&>(*this).get<T>(name);
+    template <typename U>
+    const U& get(const std::string& name) const {
+        return const_cast<schema_mapper&>(*this).get<U>(name);
     }
 
-    template <typename T>
+    template <typename U>
     bool exist_with_type(const std::string& name) const {
         auto e = false;
         auto f = [&e, &name](auto& f) {
-            if (f.name == name && std::is_same<T, decltype(f.value)>::value == true)
+            if (f.name == name && std::is_same<U, decltype(f.value)>::value == true)
             { e = true; }
         };
         return e;
@@ -121,6 +125,10 @@ struct schema_mapper {
             if (f.name == name) { e = true; }
         };
         return e;
+    }
+
+    static std::string type_name() {
+        return sad::demangle::type_name(typeid(T).name());
     }
 
 };

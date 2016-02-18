@@ -43,6 +43,8 @@ int main () {
 
     // fun(h);
     auto s = sad::schema<hello>()(h);
+    std::cout << sad::schema<hello>().type_name() << std::endl;
+
     s.get<int>("i") = 250;
     // std::cout << "hello.i:" << s.get<int>("i") << std::endl;
     auto mn = std::move(sad::maybe_null<int>{});

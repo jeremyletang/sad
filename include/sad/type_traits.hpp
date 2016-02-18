@@ -28,7 +28,7 @@
 
 namespace sad {
 
-template <typename... Tys>
+template <typename T, typename... Tys>
 struct schema_mapper;
 
 namespace traits {
@@ -94,8 +94,8 @@ using is_maybe_null_t = typename is_maybe_null<T>::inner_type;
 template <typename T>
 struct is_schema_mapper : std::false_type {};
 
-template <typename... Tys>
-struct is_schema_mapper<sad::schema_mapper<Tys...>> : std::true_type {};
+template <typename T, typename... Tys>
+struct is_schema_mapper<sad::schema_mapper<T, Tys...>> : std::true_type {};
 
 template <typename T>
 constexpr bool is_schema_mapper_v = is_schema_mapper<T>::value;
