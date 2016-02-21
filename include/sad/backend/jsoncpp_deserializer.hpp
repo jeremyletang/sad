@@ -25,14 +25,127 @@
 
 #include <iostream>
 #include <utility>
-#include <cstdio>
-#include "../utility.hpp"
+#include <stdexcept>
+
+#include "../type_traits.hpp"
 
 namespace sad {
 namespace backend {
 namespace detail {
+namespace jsoncpp {
 
+struct missing_json_value: public std::exception {
+public:
+    std::string err;
+    missing_json_value() = default;
+    explicit missing_json_value(const std::string& err)
+    : err(err) {}
+    explicit missing_json_value(const std::string& value_name, const std::string& value_type)
+    : err(std::string{"missing json value "}+value_name+" of expected type "+value_type) {}
+    virtual const char* what() const throw() {
+        return this->err.c_str();
+    }
+};
+
+// utility function to use the good root in deserialization function
+inline Json::Value& get_named_value_or_root(Json::Value& root,
+                                            const std::string& key_name = "",
+                                            const std::string& type_name = "unknown") {
+    // we just need to return the root
+    if (key_name.empty()) {return root;}
+    // we need a given member
+    // first check if the member exist and throw if not
+    // else return the member
+    if (not root.isMember(key_name)) {
+        throw missing_json_value{key_name, type_name};
+    }
+    return root[key_name] ;
 }
+
+// schema
+template<typename T, typename... Types>
+inline void deserialize_field_value(Json::Value& root,
+                                    sad::schema_mapper<T, Types...>& schema);
+// any object
+template <typename T,
+          typename std::enable_if<!std::is_arithmetic<T>::value &&
+                                  !sad::traits::is_maybe_null_v<T> &&
+                                  !sad::traits::has_iterator_v<T>>::type* = nullptr>
+inline void deserialize_field_value(Json::Value& root, T& t, const std::string& name = "");
+// unsigned numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_unsigned<T>::value>::type* = nullptr>
+inline void deserialize_field_value(Json::Value& root,
+                                    T& t,
+                                    const std::string& name = "");
+// signed numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_signed<T>::value>::type* = nullptr>
+inline void deserialize_field_value(Json::Value& root,
+                                    T& t,
+                                    const std::string& name = "");
+// reals 
+template <typename T,
+          typename std::enable_if<std::is_floating_point<T>::value>::type* = nullptr>
+inline void deserialize_field_value(Json::Value& root,
+                                    T& t,
+                                    const std::string& name = "");
+
+
+// unsigned numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_unsigned<T>::value>::type*>
+inline void deserialize_field_value(Json::Value& root, const T& t, const std::string& name) {
+    auto& r = get_named_value_or_root(root, name);
+    if (not r.isUInt()) { throw missing_json_value{name, "unsigned int"}; }
+    t = r.asUInt();
+}
+
+// signed numbers
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value &&
+                                  std::is_signed<T>::value>::type*>
+inline void deserialize_field_value(Json::Value& root, T& t, const std::string& name) {
+    auto& r = get_named_value_or_root(root, name);
+    if (not r.isInt()) { throw missing_json_value{name, "int"}; }
+    t = r.asInt();
+}
+
+// reals 
+template <typename T,
+          typename std::enable_if<std::is_floating_point<T>::value>::type*>
+inline void deserialize_field_value(Json::Value& root, T& t, const std::string& name) {
+    auto& r = get_named_value_or_root(root, name);
+    if (not r.isDouble()) { throw missing_json_value{name, "double"}; }
+    t = r.asDouble();
+}
+
+
+// schema
+template<typename T, typename... Types>
+inline void deserialize_field_value(Json::Value& root,
+                                    sad::schema_mapper<T, Types...>& schema) {
+    schema.for_each([&root](auto& f) {
+        detail::jsoncpp::deserialize_field_value(root, f.value, f.name);
+    });
+}
+
+// any object
+template <typename T,
+          typename std::enable_if<!std::is_arithmetic<T>::value &&
+                                  !sad::traits::is_maybe_null_v<T> &&
+                                  !sad::traits::has_iterator_v<T>>::type*>
+inline void deserialize_field_value(Json::Value& root, T& t, const std::string& name) {
+    auto s = sad::schema<T>()(t);
+    auto& r = get_named_value_or_root(root, name);
+    if (not r.isObject()) { throw missing_json_value{name, "object"}; }
+    sad::backend::detail::jsoncpp::deserialize_field_value(root, s);
+}
+
+}}
 
 struct jsoncpp_deserializer {
     jsoncpp_deserializer() = default;
@@ -41,29 +154,37 @@ struct jsoncpp_deserializer {
     // from string deserialization
     template <typename OutValue>
     std::pair<bool, std::string> deserialize(const std::string& input, OutValue& output) {
-        auto root = Json::Value();
-        auto reader = Json::Reader();
-        auto parsing_ok = reader.parse(input, root);
+        auto reader = Json::Reader{};
+        auto parsing_ok = reader.parse(input, this->root);
         if (not parsing_ok) {
             return std::make_pair(false, reader.getFormattedErrorMessages());
         }
-
-        return std::make_pair(true, std::string{});
+        return this->deserialize(output);
     }
 
     // from filename deserialization
     template <typename OutValue>
     std::pair<bool, std::string> deserialize(std::istream& input, OutValue& output) {
-        auto root = Json::Value();
-        auto reader = Json::Reader();
-        auto parsing_ok = reader.parse(input, root);
+        auto reader = Json::Reader{};
+        auto parsing_ok = reader.parse(input, this->root);
         if (not parsing_ok) {
             return std::make_pair(false, reader.getFormattedErrorMessages());
         }
-
-        return std::make_pair(true, std::string{});
+        return this->deserialize(output);
     }
 
+private:
+    Json::Value root;
+
+    template <typename OutValue>
+    std::pair<bool, std::string> deserialize(OutValue& output) {
+        try {
+            sad::backend::detail::jsoncpp::deserialize_field_value(this->root, output);
+        } catch (const sad::backend::detail::jsoncpp::missing_json_value& e) {
+            return std::make_pair(false, e.what());
+        }
+        return std::make_pair(true, std::string{});
+    }
 };
 
 }}

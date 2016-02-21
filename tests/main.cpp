@@ -17,7 +17,6 @@ struct ty;
 void fun(const hello& h) {
     std::cout << sad::schema<hello>()(h) << std::endl;
 }
-
 int main () {
     const auto h = hello{
         '?',
@@ -59,10 +58,11 @@ int main () {
     auto json_value = sad::serialize(sad::backend::jsoncpp_serializer{}, i);
     std::cout << json_value.toStyledString() << std::endl;
     
-    auto r = sad::deserialize<small>(sad::backend::jsoncpp_deserializer{}, "{}");
+    auto r = sad::deserialize<numbers>(sad::backend::jsoncpp_deserializer{}, "{\"i\": 42, \"f\": 84.48}");
     if (not r) {
         std::cout << r.error_msg << std::endl;
     }
+    std::cout << "deserialized numbers: " << sad::schema<numbers>()(*r) << std::endl;
 
     // ty<decltype(s)> t;
 }

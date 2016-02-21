@@ -10,6 +10,27 @@
 #include <sad/utility.hpp>
 #include <sad/maybe_null.hpp>
 
+struct numbers {
+    int i;
+    float f;
+    numbers() = default;
+    numbers(int i, float f) : i(i), f(f) {}
+};
+
+namespace sad {
+template <>
+struct schema<numbers> : public sad::base_schema<numbers>{
+    using sad::base_schema<numbers>::operator();
+    decltype(auto) operator()(numbers& s) {
+        return sad::make_schema<numbers>(
+            sad::f("i", s.i),
+            sad::f("f", s.f)
+    );
+    }
+};
+}
+
+
 struct small {
     int integer;
     std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<int>>>>>>> vec;
