@@ -4,6 +4,7 @@
 #include <sad/ostream.hpp>
 #include <sad/maybe_null.hpp>
 #include <sad/serialize.hpp>
+#include <sad/deserialize.hpp>
 #include <sad/backend/ostream_serializer.hpp>
 #include <sad/backend/jsoncpp_serializer.hpp>
 #include <sad/backend/jsoncpp_deserializer.hpp>
@@ -58,7 +59,10 @@ int main () {
     auto json_value = sad::serialize(sad::backend::jsoncpp_serializer{}, i);
     std::cout << json_value.toStyledString() << std::endl;
     
-
+    auto r = sad::deserialize<small>(sad::backend::jsoncpp_deserializer{}, "{}");
+    if (not r) {
+        std::cout << r.error_msg << std::endl;
+    }
 
     // ty<decltype(s)> t;
 }

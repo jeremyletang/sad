@@ -37,7 +37,7 @@ struct deserialize_result {
     deserialize_result(OutValue value)
     : ok(true), error_msg(std::string{""}), value(value) {}
     deserialize_result(const std::string& error_msg, OutValue value)
-    : ok(false), error_msg(error_msg), OutValue(value) {}
+    : ok(false), error_msg(error_msg), value(value) {}
 
     bool is_ok() const { return this->ok; }
     bool operator!() const { return ok == false; }
