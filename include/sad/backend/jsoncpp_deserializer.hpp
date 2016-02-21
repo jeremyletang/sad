@@ -92,16 +92,26 @@ template <typename T,
 inline void deserialize_field_value(Json::Value& root,
                                     T& t,
                                     const std::string& name = "");
-
+// strings
+template <typename CharT, typename Traits, typename Allocator>
+inline void deserialize_field_value(Json::Value& root,
+                                    const std::basic_string<CharT, Traits, Allocator>& s,
+                                    const std::string& name = "");
 
 // unsigned numbers
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value &&
                                   std::is_unsigned<T>::value>::type*>
-inline void deserialize_field_value(Json::Value& root, const T& t, const std::string& name) {
+inline void deserialize_field_value(Json::Value& root, T& t, const std::string& name) {
     auto& r = get_named_value_or_root(root, name);
-    if (not r.isUInt()) { throw missing_json_value{name, "unsigned int"}; }
-    t = r.asUInt();
+    // boolean handling
+    if (sad::traits::is_bool_v<T>) {
+        if (not r.isBool()) { throw missing_json_value{name, "unsigned int"}; }
+        t = r.asBool();
+    } else { // uint
+        if (not r.isUInt()) { throw missing_json_value{name, "unsigned int"}; }
+        t = r.asUInt();
+    }
 }
 
 // signed numbers
@@ -123,6 +133,15 @@ inline void deserialize_field_value(Json::Value& root, T& t, const std::string& 
     t = r.asDouble();
 }
 
+// strings
+template <typename CharT, typename Traits, typename Allocator>
+inline void deserialize_field_value(Json::Value& root,
+                                    const std::basic_string<CharT, Traits, Allocator>& s,
+                                    const std::string& name) {
+    auto& r = get_named_value_or_root(root, name);
+    if (not r.isString()) { throw missing_json_value{name, "string"}; }
+    s = r.asString();
+}
 
 // schema
 template<typename T, typename... Types>

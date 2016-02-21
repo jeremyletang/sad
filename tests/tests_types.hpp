@@ -13,8 +13,9 @@
 struct numbers {
     int i;
     float f;
+    bool b;
     numbers() = default;
-    numbers(int i, float f) : i(i), f(f) {}
+    numbers(int i, float f, bool b) : i(i), f(f), b(b) {}
 };
 
 namespace sad {
@@ -24,7 +25,8 @@ struct schema<numbers> : public sad::base_schema<numbers>{
     decltype(auto) operator()(numbers& s) {
         return sad::make_schema<numbers>(
             sad::f("i", s.i),
-            sad::f("f", s.f)
+            sad::f("f", s.f),
+            sad::f("b", s.b)
     );
     }
 };

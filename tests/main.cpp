@@ -58,11 +58,13 @@ int main () {
     auto json_value = sad::serialize(sad::backend::jsoncpp_serializer{}, i);
     std::cout << json_value.toStyledString() << std::endl;
     
-    auto r = sad::deserialize<numbers>(sad::backend::jsoncpp_deserializer{}, "{\"i\": 42, \"f\": 84.48}");
-    if (not r) {
-        std::cout << r.error_msg << std::endl;
+    auto d_result =
+        sad::deserialize<numbers>(sad::backend::jsoncpp_deserializer{},
+                                  "{\"i\": 42, \"f\": 84.48, \"b\": true}");
+    if (not d_result) {
+        std::cout << d_result.error_msg << std::endl;
     }
-    std::cout << "deserialized numbers: " << sad::schema<numbers>()(*r) << std::endl;
+    std::cout << "deserialized numbers: " << sad::schema<numbers>()(*d_result) << std::endl;
 
     // ty<decltype(s)> t;
 }
