@@ -23,12 +23,48 @@
 #ifndef __SAD__BACKEND_JSONCPP_DESERIALIZER__20160213__
 #define __SAD__BACKEND_JSONCPP_DESERIALIZER__20160213__
 
+#include <iostream>
+#include <utility>
+#include <cstdio>
+#include "../utility.hpp"
+
 namespace sad {
 namespace backend {
 namespace detail {
-    
+
 }
 
+struct jsoncpp_deserializer {
+    jsoncpp_deserializer() = default;
+    ~jsoncpp_deserializer() = default;
+
+    // from string deserialization
+    template <typename OutValue>
+    std::pair<bool, std::string> deserialize(const std::string& input, OutValue& output) {
+        auto root = Json::Value();
+        auto reader = Json::Reader();
+        auto parsing_ok = reader.parse(input, root);
+        if (not parsing_ok) {
+            return std::make_pair(false, reader.getFormattedErrorMessages());
+        }
+
+        return std::make_pair(true, std::string{});
+    }
+
+    // from filename deserialization
+    template <typename OutValue>
+    std::pair<bool, std::string> deserialize(std::istream& input, OutValue& output) {
+        auto root = Json::Value();
+        auto reader = Json::Reader();
+        auto parsing_ok = reader.parse(input, root);
+        if (not parsing_ok) {
+            return std::make_pair(false, reader.getFormattedErrorMessages());
+        }
+
+        return std::make_pair(true, std::string{});
+    }
+
+};
 
 }}
 

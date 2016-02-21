@@ -6,6 +6,7 @@
 #include <sad/serialize.hpp>
 #include <sad/backend/ostream_serializer.hpp>
 #include <sad/backend/jsoncpp_serializer.hpp>
+#include <sad/backend/jsoncpp_deserializer.hpp>
 #include <gtest/gtest.h>
 #include <json/json.h>
 
@@ -38,6 +39,7 @@ int main () {
     const auto _s_equal = small{42};
     const auto _s_not_equal = small{43};
 
+
     std::cout << "s == s_equal " << std::boolalpha << sad::equals(_s, _s_equal) << std::endl; 
     std::cout << "s != s_not_equal " << std::boolalpha << sad::equals(_s, _s_not_equal) << std::endl; 
 
@@ -51,11 +53,12 @@ int main () {
     sad::maybe_null<int> mi = 42;
     // std::cout << mi << std::endl;
 
-    sad::serialize(sad::backend::cout_serializer.pretty(), h);
+    sad::serialize(sad::backend::cout_serializer, h);
     std::cout << std::endl;
     auto json_value = sad::serialize(sad::backend::jsoncpp_serializer{}, i);
-    
     std::cout << json_value.toStyledString() << std::endl;
     
+
+
     // ty<decltype(s)> t;
 }

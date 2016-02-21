@@ -23,9 +23,45 @@
 #ifndef __SAD__DESERIALIZE__20160213__
 #define __SAD__DESERIALIZE__20160213__
 
-namespace sad {
-namespace detail {
+#include <type_traits>
+#include "utility.hpp"
+#include "type_traits.hpp"
 
+namespace sad {
+
+template <typename OutValue>
+struct deserialize_result {
+    bool ok;
+    std::string error_msg;
+    OutValue value;
+    deserialize_result(OutValue value)
+    : ok(true), error_msg(std::string{""}), value(value) {}
+    deserialize_result(const std::string& error_msg, OutValue value)
+    : ok(false), error_msg(error_msg), OutValue(value) {}
+
+    bool is_ok() const { return this->ok; }
+    bool operator!() const { return ok == false; }
+    OutValue& operator*() { return this->value; }
+    const OutValue& operator*() const { return this->value; }
+};
+
+template <typename OutValue, typename InValue, typename Deserializer>
+deserialize_result<OutValue&> deserialize(Deserializer&& s, InValue& iv, OutValue& ov) {
+    auto r = s.deserialize(iv, ov);
+    if (not r.first) {
+        return deserialize_result<OutValue&>{r.second, ov};
+    }
+    return deserialize_result<OutValue&>{ov};
+}
+
+template <typename OutValue, typename InValue, typename Deserializer>
+deserialize_result<OutValue> deserialize(Deserializer&& s, InValue& iv) {
+    auto ov = OutValue{};
+    auto r = s.deserialize(iv, ov);
+    if (not r.first) {
+        return deserialize_result<OutValue>{r.second, ov};
+    }
+    return deserialize_result<OutValue>{ov};
 }
 
 }
