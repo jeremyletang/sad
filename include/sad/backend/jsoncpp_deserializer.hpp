@@ -97,6 +97,14 @@ template <typename CharT, typename Traits, typename Allocator>
 inline void deserialize_field_value(Json::Value& root,
                                     const std::basic_string<CharT, Traits, Allocator>& s,
                                     const std::string& name = "");
+// containers (std::list, std::vector, std::deque, std::forward_list ...)
+template <template<typename, typename> class C,
+          typename T,
+          typename Allocator = std::allocator<T>>
+inline void deserialize_field_value(Json::Value& root,
+                                    C<T, Allocator>& t,
+                                    const std::string& name = "");
+
 
 // unsigned numbers
 template <typename T,
@@ -141,6 +149,23 @@ inline void deserialize_field_value(Json::Value& root,
     auto& r = get_named_value_or_root(root, name);
     if (not r.isString()) { throw missing_json_value{name, "string"}; }
     s = r.asString();
+}
+
+// containers (std::list, std::vector, std::deque, std::forward_list ...)
+template <template<typename, typename> class C,
+          typename T,
+          typename Allocator>
+inline void deserialize_field_value(Json::Value& root,
+                                    C<T, Allocator>& t,
+                                    const std::string& name) {
+    auto& r = get_named_value_or_root(root, name);
+    if (not r.isArray()) { throw missing_json_value{name, "array"}; }
+
+    for (auto& v : r) {
+        T new_value;
+        deserialize_field_value(v, new_value);
+        t.push_back(new_value);
+    }
 }
 
 // schema

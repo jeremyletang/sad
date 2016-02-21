@@ -22,18 +22,18 @@ int main () {
         '?',
         "hello world",
         42,
-        {21, 12.12, {1, 2, 3, 4, 5}, {42, 84}},
+        {21, 12.12, {1, 2, 3, 4, 5}, {{42, 84}}},
         84.42,
         false,
         {{1, 2, 3}, {3,2,1}},
         "hello world",
-        {42.2, 51.7, 0.987, 12.97},
+        {{42.2, 51.7, 0.987, 12.97}},
         {{"pauline", 25}, {"jeremy", 25}, {"alexie", 22}},
         {{"pauline", 25}, {"jeremy", 25}, {"alexie", 22}},
         {'a', 'b', 'c', 'd'},
     };
 
-    const auto i = inner{21, 12.12, {1, 2, 3, 4, 5}, {42, 84}};
+    const auto i = inner{21, 12.12, {1, 2, 3, 4, 5}, {{42, 84}}};
     
     const auto _s = small{42};
     const auto _s_equal = small{42};
@@ -51,7 +51,7 @@ int main () {
     // std::cout << "hello.i:" << s.get<int>("i") << std::endl;
     auto mn = std::move(sad::maybe_null<int>{});
     sad::maybe_null<int> mi = 42;
-    // std::cout << mi << std::endl;
+    std::cout << mi << std::endl;
 
     sad::serialize(sad::backend::cout_serializer, h);
     std::cout << std::endl;
@@ -60,7 +60,7 @@ int main () {
     
     auto d_result =
         sad::deserialize<numbers>(sad::backend::jsoncpp_deserializer{},
-                                  "{\"i\": 42, \"f\": 84.48, \"b\": true}");
+                                  "{\"i\": 42, \"f\": 84.48, \"b\": true, \"veci\":[23,89,24]}");
     if (not d_result) {
         std::cout << d_result.error_msg << std::endl;
     }

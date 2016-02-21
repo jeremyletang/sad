@@ -14,8 +14,9 @@ struct numbers {
     int i;
     float f;
     bool b;
+    std::vector<int> veci;
     numbers() = default;
-    numbers(int i, float f, bool b) : i(i), f(f), b(b) {}
+    numbers(int i, float f, bool b) : i(i), f(f), b(b), veci({40,50,234}) {}
 };
 
 namespace sad {
@@ -26,7 +27,8 @@ struct schema<numbers> : public sad::base_schema<numbers>{
         return sad::make_schema<numbers>(
             sad::f("i", s.i),
             sad::f("f", s.f),
-            sad::f("b", s.b)
+            sad::f("b", s.b),
+            sad::f("veci", s.veci)
     );
     }
 };
