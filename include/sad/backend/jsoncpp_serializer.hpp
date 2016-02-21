@@ -97,13 +97,20 @@ inline void serialize_field_value(Json::Value& root,
 }
 
 // unsigned numbers
+// bools
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value &&
                                   std::is_unsigned<T>::value>::type*>
 inline void serialize_field_value(Json::Value& root,
                                   const T& t,
                                   const std::string& name) {
-    auto value = Json::Value(static_cast<Json::UInt>(t));
+    auto value = Json::Value();
+    // if T is bool
+    if (sad::traits::is_bool_v<T>) {
+        value = Json::Value(t);
+    } else { // uint
+        value = Json::Value(static_cast<Json::UInt>(t));
+    }
     if (name.empty()) {root = value;}
     else {root[name] = value;}
 }

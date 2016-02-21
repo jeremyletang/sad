@@ -43,6 +43,7 @@ struct small {
 };
 
 struct inner {
+    bool b;
     int blah;
     float bleh;
     std::vector<int> vec;
@@ -100,6 +101,7 @@ struct schema<inner> : public sad::base_schema<inner>{
     using sad::base_schema<inner>::operator();
     decltype(auto) operator()(inner& in) {
         return sad::make_schema<inner>(
+            sad::f("b", in.b),
             sad::f("blah", in.blah),
             sad::f("bleh", in.bleh),
             sad::f("vec", in.vec),
