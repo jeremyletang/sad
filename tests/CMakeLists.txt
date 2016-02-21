@@ -55,3 +55,5 @@ endif ()
 if (WITH_SQLITE_BACKEND)
     target_link_libraries (sad_tests pthread dl)
 endif ()
+
+add_dependencies (sad_tests googletest jsoncpp sqlite)

@@ -50,7 +50,7 @@ struct inner {
     std::array<small, 2> small_object;
     inner() = default;
     inner(int blah, float bleh, std::vector<int> vec = {}, std::array<small, 2> small_object = {})
-    : blah(blah), bleh(bleh), vec(vec), small_object(small_object) {}
+    : b(true), blah(blah), bleh(bleh), vec(vec), small_object(small_object) {}
 };
 
 class hello {
