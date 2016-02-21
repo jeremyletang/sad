@@ -27,7 +27,7 @@
 
 namespace sad {
 namespace demangle {
-    std::string type_name(const std::string& type) {
+inline std::string type_name(const std::string& type) {
     auto status = 0;
     auto result = abi::__cxa_demangle(type.c_str(), nullptr, nullptr, &status);
 

@@ -59,8 +59,8 @@ struct base_schema {
     }
 };
 
-template <typename... Tys>
-bool operator==(const schema_mapper<Tys...>& sm1, const schema_mapper<Tys...>& sm2) {
+template <typename T, typename... Tys>
+bool operator==(const schema_mapper<T, Tys...>& sm1, const schema_mapper<T, Tys...>& sm2) {
     auto ok = true;
     auto fn = [&sm2, &ok](const auto& f) {
         const auto sm2_value =
@@ -73,8 +73,8 @@ bool operator==(const schema_mapper<Tys...>& sm1, const schema_mapper<Tys...>& s
     return ok;
 }
 
-template <typename... Tys>
-bool operator!=(const schema_mapper<Tys...>& sm1, const schema_mapper<Tys...>& sm2) {
+template <typename T, typename... Tys>
+bool operator!=(const schema_mapper<T, Tys...>& sm1, const schema_mapper<T, Tys...>& sm2) {
     return not (sm1 == sm2);
 }
 
