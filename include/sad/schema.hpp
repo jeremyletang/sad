@@ -29,12 +29,23 @@
 #include <functional>           // std::reference_wrapper
 #include <stdexcept>            // std::invalid_argument
 #include <typeinfo>
+#include <cstdint>              // uintptr_t
+#include <algorithm>
 
 #include "tuple_utils.hpp"      // sad::tuple_utils::for_each
 #include "type_traits.hpp"      // sad::traits::ensure_trait_for_all_v
 #include "demangle.hpp"         // sad::demangle::type_name
 
 namespace sad {
+
+struct invalid_mapping: public std::exception {
+public:
+    std::string err;
+    invalid_mapping() = default;
+    explicit invalid_mapping(const std::string& err)
+    : err(err) {}
+    virtual const char* what() const throw() { return this->err.c_str(); }
+};
 
 template <typename Value>
 struct field {
@@ -61,6 +72,11 @@ bool bind_value_ref_to_reference_wrapper(std::reference_wrapper<T>& t, T& val) {
     return true;
 }
 
+template <typename T, typename U>
+bool test_value_refer_same_member(const T&, const U&) { return false; }
+
+template <typename T>
+bool test_value_refer_same_member(const T& t1, const T& t2) { return &t1 == &t2; }
 
 template <typename T, typename... Types>
 struct schema_mapper {
@@ -76,7 +92,32 @@ struct schema_mapper {
 
     schema_mapper() = delete;
     schema_mapper(field<Types>... fields)
-    : fields(fields...) {}
+    : fields(fields...) {
+        std::vector<std::string> names{};
+        std::vector<uintptr_t> addresses{};
+
+        // check for duplicates name of reference to member
+        auto f = [&names, &addresses](const auto& f) {
+            // check for duplicate name
+            auto it_names = std::find(names.begin(), names.end(), f.name);
+            if (it_names != names.end()) {
+                auto err = std::string{"two or more element are named "};
+                err += f.name;
+                throw invalid_mapping{err};
+            }
+            names.push_back(f.name);
+            // check for duplicate adress
+            auto addr = reinterpret_cast<uintptr_t>(&(f.value));
+            auto it_addresses =
+                std::find(addresses.begin(), addresses.end(), addr);
+            if (it_addresses != addresses.end()) {
+                auto err = f.name + " refers to a member already used";
+                throw invalid_mapping{err};
+            }
+            addresses.push_back(addr);
+        };
+        this->for_each(f);
+    }
     ~schema_mapper() = default;
 
     template <typename Fn>

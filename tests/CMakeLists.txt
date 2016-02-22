@@ -26,7 +26,7 @@ cmake_minimum_required (VERSION 2.8.1)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -W -Wall -Wextra -Wno-unused-function") #enable C++14
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
-set (SOURCES main.cpp)
+file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/tests/*.cpp")
 set (SAD_TESTS_DEPENDENCIES googletest)
 
 include_directories (
@@ -48,7 +48,10 @@ if (WITH_SQLITE_BACKEND)
 endif ()
 
 add_executable (sad_tests ${SOURCES})
-target_link_libraries (sad_tests ${GTEST_LIBRARY_DIR}/libgtest.a)
+target_link_libraries (sad_tests
+    ${GTEST_LIBRARY_DIR}/libgtest.a
+    # ${GTEST_LIBRARY_DIR}/libgtest_main.a
+)
 
 # link jsoncpp library
 if (WITH_JSONCPP_BACKEND)
