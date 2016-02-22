@@ -28,9 +28,9 @@
 
 namespace sad {
 
-template<typename CharT, typename Traits, typename... Types>
+template<typename CharT, typename Traits, typename T, typename... Types>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,
-                                              const sad::schema_mapper<Types...>& schema) {
+                                              const sad::schema_mapper<T, Types...>& schema) {
     sad::backend::detail::basic_ostream::print_field_value(os, schema);
     return os;
 }

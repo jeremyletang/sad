@@ -60,9 +60,9 @@ inline void serialize_field_value(Json::Value& root,
                                   const T& t,
                                   const std::string& name = "");
 // schema
-template<typename... Types>
+template<typename T, typename... Types>
 inline void serialize_field_value(Json::Value& root,
-                                  const sad::schema_mapper<Types...>& schema);
+                                  const sad::schema_mapper<T, Types...>& schema);
 // any object
 template <typename T,
           typename std::enable_if<!std::is_arithmetic<T>::value &&
@@ -139,9 +139,9 @@ inline void serialize_field_value(Json::Value& root,
 }
 
 // schema
-template<typename... Types>
+template<typename T, typename... Types>
 inline void serialize_field_value(Json::Value& root,
-                                  const sad::schema_mapper<Types...>& schema) {
+                                  const sad::schema_mapper<T, Types...>& schema) {
     schema.for_each([&root](const auto& f) {
         detail::jsoncpp::serialize_field_value(root, f.value, f.name);
     });

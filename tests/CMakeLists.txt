@@ -27,6 +27,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -W -Wall -Wextra -Wno-unused
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
 set (SOURCES main.cpp)
+set (SAD_TESTS_DEPENDENCIES googletest)
 
 include_directories (
     ${PROJECT_SOURCE_DIR}/include
@@ -34,6 +35,7 @@ include_directories (
 )
 if (WITH_JSONCPP_BACKEND)
     include_directories (${JSONCPP_INCLUDE_DIR})
+    list (APPEND SAD_TESTS_DEPENDENCIES jsoncpp)
 endif ()
 if (WITH_SQLITE_BACKEND)
     # create the C file juste to make cmake happy
@@ -42,6 +44,7 @@ if (WITH_SQLITE_BACKEND)
     endif ()
     include_directories (${SQLITE_INCLUDE_DIR})
     list (APPEND SOURCES ${SQLITE_SRC})
+    list (APPEND SAD_TESTS_DEPENDENCIES sqlite)
 endif ()
 
 add_executable (sad_tests ${SOURCES})
@@ -56,4 +59,4 @@ if (WITH_SQLITE_BACKEND)
     target_link_libraries (sad_tests pthread dl)
 endif ()
 
-add_dependencies (sad_tests googletest jsoncpp sqlite)
+add_dependencies (sad_tests ${SAD_TESTS_DEPENDENCIES})

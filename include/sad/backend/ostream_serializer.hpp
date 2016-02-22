@@ -130,9 +130,9 @@ template <typename CharT,
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
                               const Set<Key, Compare, Allocator>& s);
 // schema
-template<typename CharT, typename Traits, typename... Types>
+template<typename CharT, typename Traits, typename T, typename... Types>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
-                              const sad::schema_mapper<Types...>& schema);
+                              const sad::schema_mapper<T, Types...>& schema);
 
 // definitions
 
@@ -333,9 +333,9 @@ inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
     os << "}";
 }
 
-template<typename CharT, typename Traits, typename... Types>
+template<typename CharT, typename Traits, typename T, typename... Types>
 inline void print_field_value(std::basic_ostream<CharT, Traits>& os,
-                              const sad::schema_mapper<Types...>& schema) {
+                              const sad::schema_mapper<T, Types...>& schema) {
     auto first = true;
     os << "{";
     schema.for_each([&first, &os](const auto& f) {
